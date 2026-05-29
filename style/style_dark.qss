@@ -1,0 +1,247 @@
+/* PustakaDesk — Tema Gelap, proporsi lebih rapih */
+* { font-family: "Segoe UI", "Inter", "Arial", sans-serif; font-size: 13px; }
+QMainWindow, QWidget#main_root, QWidget#login_root, QWidget#content_area, QWidget#page { background: #0F172A; color: #E5E7EB; }
+QLabel { background: transparent; color: #E5E7EB; }
+
+QMenuBar { background: #111827; color: #E5E7EB; border-bottom: 1px solid #1F2937; padding: 3px 14px; }
+QMenuBar::item { padding: 7px 11px; margin: 1px 2px; border-radius: 7px; }
+QMenuBar::item:selected { background: #172554; color: #93C5FD; }
+QMenu { background: #111827; color: #E5E7EB; border: 1px solid #334155; border-radius: 9px; padding: 6px; }
+QMenu::item { padding: 8px 30px 8px 12px; border-radius: 7px; }
+QMenu::item:selected { background: #172554; color: #93C5FD; }
+QMenu::separator { height: 1px; background: #334155; margin: 5px 8px; }
+
+#sidebar { background: #020617; border-right: 1px solid #1E293B; }
+#sidebar_brand, #sidebar_user_card { background: #111827; border: 1px solid #263449; border-radius: 13px; }
+#brand_icon, #page_icon { background: #172554; border: 1px solid #1D4ED8; border-radius: 13px; font-size: 22px; }
+#sidebar_app_name { color: #FFFFFF; font-size: 16px; font-weight: 800; }
+#sidebar_app_sub { color: #94A3B8; font-size: 11px; }
+#sidebar_user_role { color: #93C5FD; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+#sidebar_user_name { color: #F8FAFC; font-size: 13px; font-weight: 700; }
+#sidebar_section_label { color: #64748B; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; padding: 8px 6px 2px 6px; }
+#nav_button { background: transparent; color: #CBD5E1; border: 1px solid transparent; border-radius: 11px; padding: 8px 12px; text-align: left; font-weight: 600; }
+#nav_button:hover { background: #172033; color: #FFFFFF; border: 1px solid #263449; }
+#nav_button:checked { background: #38BDF8; color: #082F49; border: 1px solid #7DD3FC; font-weight: 850; }
+#btn_logout_sidebar { background: #2A121A; color: #FDA4AF; border: 1px solid #4C1D2B; border-radius: 11px; padding: 8px 12px; text-align: left; font-weight: 800; }
+#btn_logout_sidebar:hover { background: #4C1D2B; color: #FFE4E6; }
+
+QStatusBar { background: #111827; color: #94A3B8; border-top: 1px solid #1F2937; padding: 3px 10px; }
+#page_header, #module_card, #panel_card, #stat_card, #toolbar_frame, #info_card { background: #111827; border: 1px solid #263449; border-radius: 16px; }
+#page_title { color: #F8FAFC; font-size: 23px; font-weight: 850; }
+#subtitle_label, #note_label { color: #94A3B8; font-size: 13px; }
+#module_title { color: #F8FAFC; font-size: 18px; font-weight: 800; }
+#module_note, #module_todo, #panel_text { color: #94A3B8; font-size: 13px; line-height: 1.35; }
+#module_todo { background: #0B1120; border: 1px solid #263449; border-radius: 10px; padding: 12px; }
+#panel_title { color: #F8FAFC; font-size: 15px; font-weight: 800; }
+#stat_title { color: #94A3B8; font-size: 12px; font-weight: 800; }
+#stat_icon { font-size: 22px; }
+#stat_value { color: #F8FAFC; font-size: 26px; font-weight: 850; }
+#stat_note { color: #64748B; font-size: 11px; }
+#section_title { color: #E2E8F0; font-size: 14px; font-weight: 800; }
+#info_strip { background: #172554; border: 1px solid #1D4ED8; border-radius: 11px; color: #BFDBFE; }
+
+#login_root { background: #0B1120; }
+#login_card { background: #111827; border: 1px solid #263449; border-radius: 20px; }
+#login_icon { font-size: 42px; color: #38BDF8; }
+#login_title { color: #F8FAFC; font-size: 26px; font-weight: 850; }
+#login_subtitle { color: #CBD5E1; font-size: 14px; }
+#login_hint { color: #94A3B8; font-size: 12px; }
+#form_label { color: #CBD5E1; font-size: 12px; font-weight: 800; }
+#thin_sep { color: #334155; background: #334155; border: none; max-height: 1px; }
+
+QLineEdit, QSpinBox, QDateEdit, QComboBox, QTextEdit { background: #0B1120; color: #F8FAFC; border: 1px solid #334155; border-radius: 10px; padding: 7px 10px; selection-background-color: #1D4ED8; }
+QLineEdit:focus, QSpinBox:focus, QDateEdit:focus, QComboBox:focus, QTextEdit:focus { border: 1.5px solid #38BDF8; background: #111827; }
+QLineEdit:disabled, QSpinBox:disabled, QDateEdit:disabled, QComboBox:disabled, QTextEdit:disabled { background: #1E293B; color: #64748B; }
+QComboBox::drop-down { border: none; width: 26px; }
+QComboBox QAbstractItemView { background: #111827; color: #F8FAFC; border: 1px solid #334155; selection-background-color: #1D4ED8; selection-color: #FFFFFF; outline: none; }
+
+QPushButton { background: #2563EB; color: #FFFFFF; border: none; border-radius: 10px; padding: 7px 14px; font-weight: 800; min-height: 32px; }
+QPushButton:hover { background: #1D4ED8; }
+QPushButton:pressed { background: #1E40AF; }
+QPushButton:disabled { background: #334155; color: #64748B; }
+QPushButton#btn_primary { background: #2563EB; }
+QPushButton#btn_secondary { background: #475569; }
+QPushButton#btn_secondary:hover { background: #334155; }
+QPushButton#btn_success { background: #16A34A; }
+QPushButton#btn_danger { background: #DC2626; }
+QPushButton#btn_warning { background: #D97706; }
+QPushButton#btn_outline { background: transparent; color: #93C5FD; border: 1px solid #334155; }
+QPushButton#btn_outline:hover { background: #172554; border-color: #1D4ED8; }
+
+QTableWidget, QTableView { background: #111827; alternate-background-color: #0B1120; border: 1px solid #263449; border-radius: 12px; gridline-color: #1F2937; selection-background-color: #1D4ED8; selection-color: #FFFFFF; }
+QTableWidget::item, QTableView::item { padding: 8px; border: none; }
+QHeaderView::section { background: #0B1120; color: #CBD5E1; font-weight: 800; font-size: 12px; padding: 8px; border: none; border-right: 1px solid #263449; border-bottom: 1px solid #263449; }
+QDialog, QMessageBox { background: #111827; color: #E5E7EB; }
+QMessageBox QLabel { color: #E5E7EB; }
+#dialog_title { color: #F8FAFC; font-size: 15px; font-weight: 850; }
+QScrollBar:vertical { background: #0B1120; width: 9px; border-radius: 4px; margin: 0; }
+QScrollBar::handle:vertical { background: #334155; border-radius: 4px; min-height: 30px; }
+QScrollBar::handle:vertical:hover { background: #475569; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar:horizontal { background: #0B1120; height: 9px; border-radius: 4px; }
+QScrollBar::handle:horizontal { background: #334155; border-radius: 4px; min-width: 30px; }
+QScrollBar::handle:horizontal:hover { background: #475569; }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+#fine_label_ok { color: #22C55E; font-weight: 800; }
+#fine_label_warning { color: #F87171; font-weight: 800; }
+#bar_bg { background: #172554; border-radius: 6px; }
+
+/* ──────────────────────────────────────────────────────────────
+   Role anggota/peminjam — dark mode.
+────────────────────────────────────────────────────────────── */
+#member_sidebar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #101D3D, stop:0.55 #0B1224, stop:1 #020617);
+    border-right: 1px solid #263449;
+}
+#member_sidebar_brand {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+}
+#member_user_card {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+}
+#member_hero {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1D4ED8, stop:0.55 #4338CA, stop:1 #6D28D9);
+    border: 1px solid #312E81;
+    border-radius: 22px;
+}
+#member_hero_title {
+    color: #FFFFFF;
+    font-size: 27px;
+    font-weight: 900;
+}
+#member_hero_subtitle {
+    color: #E0E7FF;
+    font-size: 14px;
+}
+#member_hero_icon {
+    background: rgba(255, 255, 255, 0.14);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 28px;
+    font-size: 48px;
+}
+#member_stat_card, #member_page_header, #member_toolbar, #book_card, #loan_card, #profile_card {
+    background: #111827;
+    border: 1px solid #263449;
+    border-radius: 18px;
+}
+#member_stat_icon {
+    background: #172554;
+    border: 1px solid #1E3A8A;
+    border-radius: 12px;
+    font-size: 18px;
+}
+#member_stat_title { color: #94A3B8; font-size: 12px; font-weight: 850; }
+#member_stat_value { color: #F8FAFC; font-size: 24px; font-weight: 900; }
+#member_stat_note { color: #64748B; font-size: 11px; }
+#member_section_title, #member_page_title { color: #F8FAFC; font-size: 20px; font-weight: 900; }
+#member_page_subtitle { color: #94A3B8; font-size: 13px; }
+QScrollArea#member_scroll {
+    background: #0B1120;
+    border: none;
+}
+QWidget#member_scroll_viewport, QWidget#member_scroll_content {
+    background: #0B1120;
+    border: none;
+}
+#book_card:hover, #loan_card:hover {
+    border: 1px solid #1D4ED8;
+    background: #0F172A;
+}
+#book_cover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #172554, stop:1 #312E81);
+    border: 1px solid #1E3A8A;
+    border-radius: 14px;
+    font-size: 24px;
+}
+#book_title { color: #F8FAFC; font-size: 14px; font-weight: 900; }
+#book_author { color: #CBD5E1; font-size: 12px; font-weight: 650; }
+#book_meta {
+    color: #BFDBFE;
+    background: #172554;
+    border: 1px solid #1E3A8A;
+    border-radius: 9px;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 800;
+}
+#book_note, #loan_meta, #profile_meta { color: #94A3B8; font-size: 12px; }
+#loan_icon {
+    background: #2E1065;
+    border: 1px solid #4C1D95;
+    border-radius: 14px;
+    font-size: 20px;
+}
+#loan_title { color: #F8FAFC; font-size: 14px; font-weight: 900; }
+#loan_status {
+    color: #BBF7D0;
+    background: #14532D;
+    border: 1px solid #166534;
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-weight: 900;
+}
+#loan_status_late {
+    color: #FECACA;
+    background: #7F1D1D;
+    border: 1px solid #991B1B;
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-weight: 900;
+}
+#profile_avatar {
+    background: #172554;
+    border: 1px solid #1E3A8A;
+    border-radius: 28px;
+    font-size: 36px;
+}
+#profile_name { color: #F8FAFC; font-size: 22px; font-weight: 900; }
+#member_empty {
+    color: #94A3B8;
+    background: #111827;
+    border: 1px dashed #334155;
+    border-radius: 16px;
+    padding: 30px;
+    font-size: 14px;
+}
+QPushButton#btn_member_primary {
+    background: #FFFFFF;
+    color: #1D4ED8;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 11px;
+    padding: 8px 14px;
+    font-weight: 900;
+}
+QPushButton#btn_member_primary:hover { background: #DBEAFE; color: #1E40AF; }
+QPushButton#btn_member_outline {
+    background: rgba(255, 255, 255, 0.11);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 11px;
+    padding: 8px 14px;
+    font-weight: 900;
+}
+QPushButton#btn_member_outline:hover { background: rgba(255, 255, 255, 0.18); }
+#book_card QPushButton#btn_member_primary, #member_toolbar QPushButton#btn_member_primary {
+    background: #2563EB;
+    color: #FFFFFF;
+    border: 1px solid #2563EB;
+}
+#book_card QPushButton#btn_member_primary:hover { background: #1D4ED8; }
+#book_card QPushButton#btn_member_outline {
+    background: transparent;
+    color: #93C5FD;
+    border: 1px solid #334155;
+}
+#book_card QPushButton#btn_member_outline:hover { background: #172554; }
+QPushButton#btn_member_text {
+    background: transparent;
+    color: #93C5FD;
+    border: none;
+    font-weight: 900;
+}
+QPushButton#btn_member_text:hover { background: #172554; }
