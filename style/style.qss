@@ -1,0 +1,387 @@
+/* PustakaDesk — Tema Terang, proporsi lebih rapih */
+* {
+    font-family: "Segoe UI", "Inter", "Arial", sans-serif;
+    font-size: 13px;
+}
+
+QMainWindow, QWidget#main_root, QWidget#login_root, QWidget#content_area, QWidget#page {
+    background-color: #F6F8FC;
+    color: #0F172A;
+}
+QLabel { background: transparent; color: #0F172A; }
+
+QMenuBar {
+    background: #FFFFFF;
+    color: #0F172A;
+    border-bottom: 1px solid #E5EAF2;
+    padding: 3px 14px;
+}
+QMenuBar::item {
+    padding: 7px 11px;
+    margin: 1px 2px;
+    border-radius: 7px;
+}
+QMenuBar::item:selected { background: #EFF6FF; color: #1D4ED8; }
+QMenu {
+    background: #FFFFFF;
+    color: #0F172A;
+    border: 1px solid #E2E8F0;
+    border-radius: 9px;
+    padding: 6px;
+}
+QMenu::item { padding: 8px 30px 8px 12px; border-radius: 7px; }
+QMenu::item:selected { background: #EFF6FF; color: #1D4ED8; }
+QMenu::separator { height: 1px; background: #E2E8F0; margin: 5px 8px; }
+
+#sidebar {
+    background: #0F2033;
+    border-right: 1px solid #20344F;
+}
+#sidebar_brand {
+    background: #162A42;
+    border: 1px solid #264563;
+    border-radius: 13px;
+}
+#brand_icon, #page_icon {
+    background: #EFF6FF;
+    border: 1px solid #DBEAFE;
+    border-radius: 13px;
+    font-size: 22px;
+}
+#sidebar_app_name { color: #FFFFFF; font-size: 16px; font-weight: 800; }
+#sidebar_app_sub { color: #AAB8CB; font-size: 11px; }
+#sidebar_user_card {
+    background: #0A1726;
+    border: 1px solid #223853;
+    border-radius: 12px;
+}
+#sidebar_user_role {
+    color: #91B8F4;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+#sidebar_user_name { color: #F8FAFC; font-size: 13px; font-weight: 700; }
+#sidebar_section_label {
+    color: #7E90A8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    padding: 8px 6px 2px 6px;
+}
+#nav_button {
+    background: transparent;
+    color: #C8D3E2;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+}
+#nav_button:hover { background: #1B314A; color: #FFFFFF; border: 1px solid #2D4A68; }
+#nav_button:checked {
+    background: #2563EB;
+    color: #FFFFFF;
+    border: 1px solid #5B8AF3;
+    font-weight: 800;
+}
+#btn_logout_sidebar {
+    background: #FFF1F2;
+    color: #BE123C;
+    border: 1px solid #FFE4E6;
+    border-radius: 11px;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 800;
+}
+#btn_logout_sidebar:hover { background: #FFE4E6; color: #9F1239; }
+
+QStatusBar {
+    background: #FFFFFF;
+    color: #64748B;
+    border-top: 1px solid #E5EAF2;
+    padding: 3px 10px;
+}
+
+#page_header, #module_card, #panel_card, #stat_card, #toolbar_frame, #info_card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+}
+#page_title { color: #0F172A; font-size: 23px; font-weight: 850; }
+#subtitle_label, #note_label { color: #64748B; font-size: 13px; }
+#module_title { color: #0F172A; font-size: 18px; font-weight: 800; }
+#module_note, #module_todo, #panel_text { color: #64748B; font-size: 13px; line-height: 1.35; }
+#module_todo {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 12px;
+}
+#panel_title { color: #0F172A; font-size: 15px; font-weight: 800; }
+#stat_title { color: #64748B; font-size: 12px; font-weight: 800; }
+#stat_icon { font-size: 22px; }
+#stat_value { color: #0F172A; font-size: 26px; font-weight: 850; }
+#stat_note { color: #94A3B8; font-size: 11px; }
+#section_title { color: #1E293B; font-size: 14px; font-weight: 800; }
+#info_strip { background: #EFF6FF; border: 1px solid #CFE0FF; border-radius: 11px; color: #1E40AF; }
+
+#login_root { background: #F3F6FB; }
+#login_card {
+    background: #FFFFFF;
+    border: 1px solid #DDE6F2;
+    border-radius: 22px;
+}
+#login_icon { font-size: 38px; color: #2563EB; }
+#login_title { color: #0F172A; font-size: 25px; font-weight: 850; }
+#login_subtitle { color: #52637A; font-size: 14px; }
+#login_hint { color: #64748B; font-size: 12px; padding-top: 2px; }
+#form_label { color: #334155; font-size: 12px; font-weight: 800; }
+#thin_sep { color: #E2E8F0; background: #E2E8F0; border: none; max-height: 1px; }
+
+QLineEdit, QSpinBox, QDateEdit, QComboBox, QTextEdit {
+    background: #FFFFFF;
+    color: #0F172A;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 7px 10px;
+    selection-background-color: #DBEAFE;
+}
+QLineEdit:focus, QSpinBox:focus, QDateEdit:focus, QComboBox:focus, QTextEdit:focus {
+    border: 1.5px solid #2563EB;
+    background: #FBFDFF;
+}
+QLineEdit:disabled, QSpinBox:disabled, QDateEdit:disabled, QComboBox:disabled, QTextEdit:disabled {
+    background: #F1F5F9; color: #94A3B8;
+}
+QComboBox::drop-down { border: none; width: 26px; }
+QComboBox QAbstractItemView {
+    background: #FFFFFF;
+    color: #0F172A;
+    border: 1px solid #E2E8F0;
+    selection-background-color: #DBEAFE;
+    selection-color: #1E40AF;
+    outline: none;
+}
+
+QPushButton {
+    background: #2563EB;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-weight: 800;
+    min-height: 30px;
+}
+QPushButton:hover { background: #1D4ED8; }
+QPushButton:pressed { background: #1E40AF; }
+QPushButton:disabled { background: #CBD5E1; color: #64748B; }
+QPushButton#btn_primary { background: #2563EB; border-radius: 11px; }
+QPushButton#btn_secondary { background: #475569; }
+QPushButton#btn_secondary:hover { background: #334155; }
+QPushButton#btn_success { background: #16A34A; }
+QPushButton#btn_danger { background: #DC2626; }
+QPushButton#btn_warning { background: #D97706; }
+QPushButton#btn_outline {
+    background: #FFFFFF;
+    color: #2563EB;
+    border: 1px solid #BFDBFE;
+}
+QPushButton#btn_outline:hover { background: #EFF6FF; border-color: #93C5FD; }
+
+QTableWidget, QTableView {
+    background: #FFFFFF;
+    alternate-background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    gridline-color: #E2E8F0;
+    selection-background-color: #DBEAFE;
+    selection-color: #1E40AF;
+}
+QTableWidget::item, QTableView::item { padding: 8px; border: none; }
+QHeaderView::section {
+    background: #F8FAFC;
+    color: #334155;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 8px;
+    border: none;
+    border-right: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+QDialog, QMessageBox { background: #FFFFFF; color: #0F172A; }
+QMessageBox QLabel { color: #0F172A; }
+#dialog_title { color: #0F172A; font-size: 15px; font-weight: 850; }
+QScrollBar:vertical { background: #F1F5F9; width: 9px; border-radius: 4px; margin: 0; }
+QScrollBar::handle:vertical { background: #CBD5E1; border-radius: 4px; min-height: 30px; }
+QScrollBar::handle:vertical:hover { background: #94A3B8; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar:horizontal { background: #F1F5F9; height: 9px; border-radius: 4px; }
+QScrollBar::handle:horizontal { background: #CBD5E1; border-radius: 4px; min-width: 30px; }
+QScrollBar::handle:horizontal:hover { background: #94A3B8; }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+#fine_label_ok { color: #16A34A; font-weight: 800; }
+#fine_label_warning { color: #DC2626; font-weight: 800; }
+#bar_bg { background: #DBEAFE; border-radius: 6px; }
+
+/* ──────────────────────────────────────────────────────────────
+   Role anggota/peminjam: lebih katalog, lebih friendly.
+   Admin tetap memakai sidebar dan halaman operasional lama.
+────────────────────────────────────────────────────────────── */
+#member_sidebar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #173B74, stop:0.55 #0F2A55, stop:1 #0B1B34);
+    border-right: 1px solid #C7D2FE;
+}
+#member_sidebar_brand {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 16px;
+}
+#member_user_card {
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+}
+#member_hero {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2563EB, stop:0.55 #4F46E5, stop:1 #7C3AED);
+    border: 1px solid #C7D2FE;
+    border-radius: 22px;
+}
+#member_hero_title {
+    color: #FFFFFF;
+    font-size: 27px;
+    font-weight: 900;
+}
+#member_hero_subtitle {
+    color: #E0E7FF;
+    font-size: 14px;
+}
+#member_hero_icon {
+    background: rgba(255, 255, 255, 0.18);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 28px;
+    font-size: 48px;
+}
+#member_stat_card, #member_page_header, #member_toolbar, #book_card, #loan_card, #profile_card {
+    background: #FFFFFF;
+    border: 1px solid #E1E8F5;
+    border-radius: 18px;
+}
+#member_stat_icon {
+    background: #EFF6FF;
+    border: 1px solid #DBEAFE;
+    border-radius: 12px;
+    font-size: 18px;
+}
+#member_stat_title { color: #64748B; font-size: 12px; font-weight: 850; }
+#member_stat_value { color: #0F172A; font-size: 24px; font-weight: 900; }
+#member_stat_note { color: #94A3B8; font-size: 11px; }
+#member_section_title, #member_page_title { color: #0F172A; font-size: 20px; font-weight: 900; }
+#member_page_subtitle { color: #64748B; font-size: 13px; }
+QScrollArea#member_scroll {
+    background: #F6F8FC;
+    border: none;
+}
+QWidget#member_scroll_viewport, QWidget#member_scroll_content {
+    background: #F6F8FC;
+    border: none;
+}
+#book_card:hover, #loan_card:hover {
+    border: 1px solid #BFDBFE;
+    background: #FBFDFF;
+}
+#book_cover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #DBEAFE, stop:1 #EEF2FF);
+    border: 1px solid #C7D2FE;
+    border-radius: 14px;
+    font-size: 24px;
+}
+#book_title { color: #0F172A; font-size: 14px; font-weight: 900; }
+#book_author { color: #475569; font-size: 12px; font-weight: 650; }
+#book_meta {
+    color: #1D4ED8;
+    background: #EFF6FF;
+    border: 1px solid #DBEAFE;
+    border-radius: 9px;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 800;
+}
+#book_note, #loan_meta, #profile_meta { color: #64748B; font-size: 12px; }
+#loan_icon {
+    background: #F5F3FF;
+    border: 1px solid #DDD6FE;
+    border-radius: 14px;
+    font-size: 20px;
+}
+#loan_title { color: #0F172A; font-size: 14px; font-weight: 900; }
+#loan_status {
+    color: #166534;
+    background: #DCFCE7;
+    border: 1px solid #BBF7D0;
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-weight: 900;
+}
+#loan_status_late {
+    color: #991B1B;
+    background: #FEE2E2;
+    border: 1px solid #FECACA;
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-weight: 900;
+}
+#profile_avatar {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 28px;
+    font-size: 36px;
+}
+#profile_name { color: #0F172A; font-size: 22px; font-weight: 900; }
+#member_empty {
+    color: #64748B;
+    background: #FFFFFF;
+    border: 1px dashed #CBD5E1;
+    border-radius: 16px;
+    padding: 30px;
+    font-size: 14px;
+}
+QPushButton#btn_member_primary {
+    background: #FFFFFF;
+    color: #1D4ED8;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 11px;
+    padding: 8px 14px;
+    font-weight: 900;
+}
+QPushButton#btn_member_primary:hover { background: #EFF6FF; color: #1E40AF; }
+QPushButton#btn_member_outline {
+    background: rgba(255, 255, 255, 0.14);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.30);
+    border-radius: 11px;
+    padding: 8px 14px;
+    font-weight: 900;
+}
+QPushButton#btn_member_outline:hover { background: rgba(255, 255, 255, 0.22); }
+#book_card QPushButton#btn_member_primary, #member_toolbar QPushButton#btn_member_primary {
+    background: #2563EB;
+    color: #FFFFFF;
+    border: 1px solid #2563EB;
+}
+#book_card QPushButton#btn_member_primary:hover { background: #1D4ED8; }
+#book_card QPushButton#btn_member_outline {
+    background: #FFFFFF;
+    color: #2563EB;
+    border: 1px solid #BFDBFE;
+}
+#book_card QPushButton#btn_member_outline:hover { background: #EFF6FF; }
+QPushButton#btn_member_text {
+    background: transparent;
+    color: #2563EB;
+    border: none;
+    font-weight: 900;
+}
+QPushButton#btn_member_text:hover { background: #EFF6FF; }
