@@ -6,7 +6,10 @@ Versi ini sengaja BELUM dibuat menjadi fitur final.
 Tujuannya: menjaga UI role peminjam tetap berbeda dari admin, tetapi setiap halaman
 masih berupa halaman arahan/tugas untuk dikerjakan anggota berikutnya.
 """
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame
+from PySide6.QtWidgets import (
+     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,  QLineEdit,
+    QPushButton, QScrollArea, QGridLayout, QMessageBox, QComboBox
+     )
 from PySide6.QtCore import Qt
 
 
@@ -89,104 +92,626 @@ class MemberTaskPage(QWidget):
         root.addWidget(body, 1)
 
     def refresh(self):
-        """Disediakan agar aman dipanggil dari MainWindow, tetapi belum melakukan apa pun."""
         pass
 
 
-class MemberHomeWidget(MemberTaskPage):
+class MemberHomeWidget(QWidget):
     def __init__(self, db, user: dict, go_to_callback=None):
+        super().__init__()
+
         self.db = db
         self.user = user
         self.go_to = go_to_callback
-        super().__init__(
-            icon="✨",
-            title="Beranda Peminjam",
-            subtitle="Halaman awal anggota. Nantinya berisi ringkasan dan pintasan utama peminjam.",
-            owner="Person 2/3",
-            tasks=[
-                "Buat hero sederhana berisi sapaan anggota dan search cepat buku.",
-                "Tampilkan ringkasan kecil: pinjaman aktif, terlambat, riwayat, dan buku tersedia.",
-                "Tambahkan rekomendasi buku atau buku terbaru dalam bentuk card, tetapi datanya harus dari database.",
-                "Sediakan tombol cepat ke Cari Buku dan Pinjaman Saya.",
-                "Jangan pakai data dummy final; gunakan database/db_buku.py saat modul sudah dikerjakan."
-            ],
-            note="Catatan: halaman ini boleh lebih stylish dari admin, tapi tetap jangan terlalu ramai karena hanya portal anggota."
+
+        self.setObjectName("page")
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(24, 24, 24, 24)
+        root.setSpacing(18)
+
+        hero = QFrame()
+        hero.setObjectName("module_card")
+
+        hero_layout = QVBoxLayout(hero)
+        hero_layout.setContentsMargins(24, 24, 24, 24)
+        hero_layout.setSpacing(12)
+
+        welcome = QLabel(
+            f"✨ Selamat Datang, {self.user.get('nama_lengkap', 'Anggota')}"
+        )
+        welcome.setStyleSheet(
+            "font-size:22px; font-weight:bold;"
         )
 
+        subtitle = QLabel(
+            "Cari buku, lihat status pinjaman, dan temukan rekomendasi bacaan terbaru."
+        )
+        subtitle.setWordWrap(True)
 
-class MemberCatalogWidget(MemberTaskPage):
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText(
+            "Cari judul atau penulis buku..."
+        )
+
+        hero_layout.addWidget(welcome)
+        hero_layout.addWidget(subtitle)
+        hero_layout.addWidget(self.search_input)
+
+        root.addWidget(hero)
+
+        stats_layout = QHBoxLayout()
+        stats_layout.setSpacing(12)
+
+        total_active = 0
+        total_late = 0
+        total_history = 0
+        total_books = 0
+
+        if hasattr(self.db, "get_member_active_loans"):
+            active_loans = self.db.get_member_active_loans(
+                self.user.get("id")
+            )
+            total_active = len(active_loans)
+
+            for loan in active_loans:
+                if loan.get("status") == "Terlambat":
+                    total_late += 1
+
+        if hasattr(self.db, "get_member_history"):
+            total_history = len(
+                self.db.get_member_history(
+                    self.user.get("id")
+                )
+            )
+
+        if hasattr(self.db, "get_all_books"):
+            total_books = len(
+                self.db.get_all_books()
+            )
+
+        cards = [
+            ("📖", "Pinjaman Aktif", total_active),
+            ("⚠️", "Terlambat", total_late),
+            ("🕘", "Riwayat", total_history),
+            ("📚", "Buku Tersedia", total_books),
+        ]
+
+        for icon, text, value in cards:
+            card = QFrame()
+            card.setObjectName("module_card")
+
+            card_layout = QVBoxLayout(card)
+            card_layout.setContentsMargins(18, 18, 18, 18)
+
+            icon_label = QLabel(icon)
+            icon_label.setAlignment(Qt.AlignCenter)
+            icon_label.setStyleSheet("font-size:22px;")
+
+            value_label = QLabel(str(value))
+            value_label.setAlignment(Qt.AlignCenter)
+            value_label.setStyleSheet(
+                "font-size:20px; font-weight:bold;"
+            )
+
+            text_label = QLabel(text)
+            text_label.setAlignment(Qt.AlignCenter)
+
+            card_layout.addWidget(icon_label)
+            card_layout.addWidget(value_label)
+            card_layout.addWidget(text_label)
+
+            stats_layout.addWidget(card)
+
+        root.addLayout(stats_layout)
+
+        action_layout = QHBoxLayout()
+        action_layout.setSpacing(12)
+
+        catalog_btn = QPushButton("🔎 Cari Buku")
+        loans_btn = QPushButton("📖 Pinjaman Saya")
+
+        if self.go_to:
+            catalog_btn.clicked.connect(
+                lambda: self.go_to("member_catalog")
+            )
+
+            loans_btn.clicked.connect(
+                lambda: self.go_to("member_loans")
+            )
+
+        action_layout.addWidget(catalog_btn)
+        action_layout.addWidget(loans_btn)
+
+        root.addLayout(action_layout)
+
+        recommendation_title = QLabel("📚 Buku Terbaru")
+        recommendation_title.setStyleSheet(
+            "font-size:18px; font-weight:bold;"
+        )
+
+        root.addWidget(recommendation_title)
+
+        books_layout = QVBoxLayout()
+        books_layout.setSpacing(12)
+
+        books = []
+
+        if hasattr(self.db, "get_all_books"):
+            books = self.db.get_all_books()[:5]
+
+        for book in books:
+            card = QFrame()
+            card.setObjectName("module_card")
+
+            card_layout = QVBoxLayout(card)
+            card_layout.setContentsMargins(18, 18, 18, 18)
+
+            title = QLabel(
+                f"📘 {book.get('judul', '-')}"
+            )
+            title.setStyleSheet(
+                "font-size:16px; font-weight:bold;"
+            )
+
+            author = QLabel(
+                f"Penulis: {book.get('penulis', '-')}"
+            )
+
+            category = QLabel(
+                f"Kategori: {book.get('kategori', '-')}"
+            )
+
+            stock = QLabel(
+                f"Stok: {book.get('stok', 0)}"
+            )
+
+            card_layout.addWidget(title)
+            card_layout.addWidget(author)
+            card_layout.addWidget(category)
+            card_layout.addWidget(stock)
+
+            books_layout.addWidget(card)
+
+        root.addLayout(books_layout)
+        root.addStretch()
+
+    def refresh(self):
+        pass
+
+
+class MemberCatalogWidget(QWidget):
     def __init__(self, db, user: dict):
+        super().__init__()
+
         self.db = db
         self.user = user
-        super().__init__(
-            icon="🔎",
-            title="Cari Buku",
-            subtitle="Halaman katalog untuk mencari buku dan mengajukan peminjaman.",
-            owner="Person 2",
-            tasks=[
-                "Buat search bar untuk judul/penulis dan filter kategori.",
-                "Tampilkan daftar buku sebagai card atau grid katalog yang rapi.",
-                "Ambil data dari db.get_all_books() dan kategori dari db.get_kategori_list().",
-                "Buat tombol Detail untuk menampilkan informasi buku.",
-                "Buat tombol Pinjam yang hanya aktif jika stok tersedia dan terhubung ke proses peminjaman.",
-                "Setelah peminjaman berhasil, stok dan daftar buku harus refresh otomatis."
-            ],
-            note="Style katalog peminjam boleh lebih visual daripada tabel admin, tetapi alurnya tetap sederhana: cari → detail → pinjam."
+
+        self.setObjectName("page")
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(24, 24, 24, 24)
+        root.setSpacing(16)
+
+        title = QLabel("🔎 Cari Buku")
+        title.setStyleSheet(
+            "font-size:22px; font-weight:bold;"
         )
 
+        subtitle = QLabel(
+            "Cari buku dan lakukan peminjaman langsung dari katalog."
+        )
 
-class MemberLoansWidget(MemberTaskPage):
+        root.addWidget(title)
+        root.addWidget(subtitle)
+
+        top_bar = QHBoxLayout()
+        top_bar.setSpacing(12)
+
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText(
+            "Cari judul atau penulis..."
+        )
+
+        self.category_filter = QComboBox()
+        self.category_filter.addItem("Semua Kategori")
+
+        if hasattr(self.db, "get_kategori_list"):
+            for kategori in self.db.get_kategori_list():
+                self.category_filter.addItem(kategori)
+
+        top_bar.addWidget(self.search_input)
+        top_bar.addWidget(self.category_filter)
+
+        root.addLayout(top_bar)
+
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+
+        self.container = QWidget()
+        self.books_layout = QGridLayout(self.container)
+        self.books_layout.setSpacing(16)
+
+        self.scroll.setWidget(self.container)
+
+        root.addWidget(self.scroll)
+
+        self.search_input.textChanged.connect(
+            self.load_books
+        )
+
+        self.category_filter.currentTextChanged.connect(
+            self.load_books
+        )
+
+        self.load_books()
+
+    def load_books(self):
+        while self.books_layout.count():
+            item = self.books_layout.takeAt(0)
+
+            if item.widget():
+                item.widget().deleteLater()
+
+        books = []
+
+        if hasattr(self.db, "get_all_books"):
+            books = self.db.get_all_books()
+
+        keyword = self.search_input.text().lower()
+        kategori = self.category_filter.currentText()
+
+        filtered = []
+
+        for book in books:
+            judul = str(
+                book.get("judul", "")
+            ).lower()
+
+            penulis = str(
+                book.get("penulis", "")
+            ).lower()
+
+            kategori_buku = str(
+                book.get("kategori", "")
+            )
+
+            cocok_search = (
+                keyword in judul or keyword in penulis
+            )
+
+            cocok_kategori = (
+                kategori == "Semua Kategori"
+                or kategori == kategori_buku
+            )
+
+            if cocok_search and cocok_kategori:
+                filtered.append(book)
+
+        row = 0
+        col = 0
+
+        for book in filtered:
+            card = QFrame()
+            card.setObjectName("module_card")
+
+            layout = QVBoxLayout(card)
+            layout.setContentsMargins(18, 18, 18, 18)
+            layout.setSpacing(10)
+
+            title = QLabel(
+                f"📘 {book.get('judul', '-')}"
+            )
+            title.setStyleSheet(
+                "font-size:16px; font-weight:bold;"
+            )
+
+            author = QLabel(
+                f"Penulis: {book.get('penulis', '-')}"
+            )
+
+            category = QLabel(
+                f"Kategori: {book.get('kategori', '-')}"
+            )
+
+            stock = QLabel(
+                f"Stok: {book.get('stok', 0)}"
+            )
+
+            status = QLabel()
+
+            if book.get("stok", 0) > 0:
+                status.setText("✅ Tersedia")
+                status.setStyleSheet(
+                    "color:green; font-weight:bold;"
+                )
+            else:
+                status.setText("❌ Stok Habis")
+                status.setStyleSheet(
+                    "color:red; font-weight:bold;"
+                )
+
+            button_layout = QHBoxLayout()
+
+            detail_btn = QPushButton("Detail")
+            borrow_btn = QPushButton("Pinjam")
+
+            if book.get("stok", 0) <= 0:
+                borrow_btn.setEnabled(False)
+
+            detail_btn.clicked.connect(
+                lambda _, b=book: self.show_detail(b)
+            )
+
+            borrow_btn.clicked.connect(
+                lambda _, b=book: self.borrow_book(b)
+            )
+
+            button_layout.addWidget(detail_btn)
+            button_layout.addWidget(borrow_btn)
+
+            layout.addWidget(title)
+            layout.addWidget(author)
+            layout.addWidget(category)
+            layout.addWidget(stock)
+            layout.addWidget(status)
+            layout.addLayout(button_layout)
+
+            self.books_layout.addWidget(card, row, col)
+
+            col += 1
+
+            if col > 2:
+                col = 0
+                row += 1
+
+    def show_detail(self, book):
+        QMessageBox.information(
+            self,
+            "Detail Buku",
+            f"Judul: {book.get('judul', '-')}\n\n"
+            f"Penulis: {book.get('penulis', '-')}\n"
+            f"Kategori: {book.get('kategori', '-')}\n"
+            f"Stok: {book.get('stok', 0)}"
+        )
+
+    def borrow_book(self, book):
+        if hasattr(self.db, "borrow_book"):
+            success = self.db.borrow_book(
+                self.user.get("id"),
+                book.get("id")
+            )
+
+            if success:
+                QMessageBox.information(
+                    self,
+                    "Berhasil",
+                    "Buku berhasil dipinjam."
+                )
+
+                self.load_books()
+
+            else:
+                QMessageBox.warning(
+                    self,
+                    "Gagal",
+                    "Peminjaman gagal."
+                )
+
+    def refresh(self):
+        self.load_books()
+
+class MemberLoansWidget(QWidget):
     def __init__(self, db, user: dict, history: bool = False):
+        super().__init__()
+
         self.db = db
         self.user = user
         self.history = history
-        if history:
-            super().__init__(
-                icon="🕘",
-                title="Riwayat Peminjaman",
-                subtitle="Halaman untuk melihat semua transaksi peminjaman anggota.",
-                owner="Person 3",
-                tasks=[
-                    "Tampilkan seluruh riwayat pinjam anggota dari database.",
-                    "Tambahkan filter status: Semua, Dipinjam, Terlambat, Dikembalikan.",
-                    "Tambahkan search berdasarkan judul buku.",
-                    "Gunakan card/list yang ringan, bukan tabel admin penuh.",
-                    "Tampilkan tanggal pinjam, tanggal kembali, status, dan denda jika ada."
-                ],
-                note="Riwayat hanya untuk membaca data; aksi pengembalian tetap lebih cocok di modul admin/petugas."
+
+        self.setObjectName("page")
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(24, 24, 24, 24)
+        root.setSpacing(16)
+
+        if self.history:
+            title_text = "🕘 Riwayat Peminjaman"
+            subtitle_text = "Halaman untuk melihat semua transaksi peminjaman anggota."
+        else:
+            title_text = "📖 Pinjaman Saya"
+            subtitle_text = "Halaman untuk melihat buku yang masih dipinjam oleh anggota."
+
+        title = QLabel(title_text)
+        title.setStyleSheet("font-size:22px; font-weight:bold;")
+
+        subtitle = QLabel(subtitle_text)
+        subtitle.setWordWrap(True)
+
+        top_bar = QHBoxLayout()
+
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Cari judul buku...")
+
+        self.filter_status = QComboBox()
+        self.filter_status.addItems([
+            "Semua",
+            "Dipinjam",
+            "Terlambat",
+            "Dikembalikan"
+        ])
+
+        search_btn = QPushButton("Cari")
+        refresh_btn = QPushButton("Refresh")
+
+        search_btn.clicked.connect(self.load_loans)
+        refresh_btn.clicked.connect(self.refresh)
+
+        top_bar.addWidget(self.search_input)
+        top_bar.addWidget(self.filter_status)
+        top_bar.addWidget(search_btn)
+        top_bar.addWidget(refresh_btn)
+
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+
+        self.container = QWidget()
+
+        self.list_layout = QVBoxLayout(self.container)
+        self.list_layout.setSpacing(14)
+
+        self.scroll.setWidget(self.container)
+
+        root.addWidget(title)
+        root.addWidget(subtitle)
+        root.addLayout(top_bar)
+        root.addWidget(self.scroll)
+
+        self.load_loans()
+
+    def load_loans(self):
+        while self.list_layout.count():
+            item = self.list_layout.takeAt(0)
+
+            if item.widget():
+                item.widget().deleteLater()
+
+        keyword = self.search_input.text().lower()
+        status_filter = self.filter_status.currentText()
+
+        if self.history:
+            loans = self.db.get_member_history(
+                self.user["id_user"]
             )
         else:
-            super().__init__(
-                icon="📖",
-                title="Pinjaman Saya",
-                subtitle="Halaman untuk melihat buku yang masih dipinjam oleh anggota.",
-                owner="Person 3",
-                tasks=[
-                    "Tampilkan hanya pinjaman aktif milik anggota yang login.",
-                    "Tambahkan indikator status: Dipinjam atau Terlambat.",
-                    "Tampilkan tanggal jatuh tempo agar anggota tahu kapan harus mengembalikan buku.",
-                    "Tambahkan search kecil untuk judul buku jika data sudah banyak.",
-                    "Jangan beri tombol edit/hapus di sisi peminjam; perubahan transaksi dilakukan admin."
-                ],
-                note="Halaman ini harus terasa informatif, bukan operasional. Fokusnya memberi tahu status pinjaman anggota."
+            loans = self.db.get_member_active_loans(
+                self.user["id_user"]
             )
 
+        for loan in loans:
+            judul = loan.get("judul", "").lower()
+            status = loan.get("status", "-")
 
-class MemberProfileWidget(MemberTaskPage):
+            cocok_search = keyword in judul
+
+            cocok_status = (
+                status_filter == "Semua"
+                or status == status_filter
+            )
+
+            if cocok_search and cocok_status:
+                card = QFrame()
+                card.setObjectName("module_card")
+
+                card_layout = QVBoxLayout(card)
+                card_layout.setContentsMargins(18, 18, 18, 18)
+                card_layout.setSpacing(8)
+
+                judul_label = QLabel(
+                    f"📚 {loan.get('judul', '-')}"
+                )
+                judul_label.setStyleSheet(
+                    "font-size:16px; font-weight:bold;"
+                )
+
+                status_label = QLabel(
+                    f"Status: {status}"
+                )
+
+                tanggal_pinjam = QLabel(
+                    f"Tanggal Pinjam: {loan.get('tanggal_pinjam', '-')}"
+                )
+
+                tanggal_kembali = QLabel(
+                    f"Tanggal Kembali: {loan.get('tanggal_kembali', '-')}"
+                )
+
+                denda = QLabel(
+                    f"Denda: Rp {loan.get('denda', 0)}"
+                )
+
+                if status == "Terlambat":
+                    status_label.setStyleSheet(
+                        "color:red; font-weight:bold;"
+                    )
+
+                elif status == "Dipinjam":
+                    status_label.setStyleSheet(
+                        "color:orange; font-weight:bold;"
+                    )
+
+                elif status == "Dikembalikan":
+                    status_label.setStyleSheet(
+                        "color:green; font-weight:bold;"
+                    )
+
+                card_layout.addWidget(judul_label)
+                card_layout.addWidget(status_label)
+                card_layout.addWidget(tanggal_pinjam)
+                card_layout.addWidget(tanggal_kembali)
+                card_layout.addWidget(denda)
+
+                self.list_layout.addWidget(card)
+
+        self.list_layout.addStretch()
+
+    def refresh(self):
+        self.load_loans()
+
+
+class MemberProfileWidget(QWidget):
     def __init__(self, db, user: dict):
+        super().__init__()
+
         self.db = db
         self.user = user
-        super().__init__(
-            icon="👤",
-            title="Profil Anggota",
-            subtitle="Halaman informasi akun peminjam.",
-            owner="Person 2",
-            tasks=[
-                "Tampilkan nama lengkap, username, role, dan informasi kontak jika ada di database.",
-                "Siapkan tombol Edit Profil jika struktur database profil sudah ditambahkan.",
-                "Tambahkan validasi input untuk nama, username, dan kontak.",
-                "Buat opsi ganti password jika dibutuhkan, tetapi jangan tampilkan password lama.",
-                "Pastikan anggota hanya bisa melihat/mengubah profilnya sendiri."
-            ],
-            note="Profil cukup sederhana. Jangan dibuat seperti halaman admin, karena anggota hanya butuh identitas dan pengaturan dasar."
+
+        self.setObjectName("page")
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(24, 24, 24, 24)
+        root.setSpacing(16)
+
+        title = QLabel("👤 Profil Anggota")
+        title.setStyleSheet(
+            "font-size:20px; font-weight:bold;"
         )
+
+        subtitle = QLabel(
+            "Halaman informasi akun peminjam."
+        )
+
+        card = QFrame()
+        card.setObjectName("module_card")
+
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(12)
+
+        nama = QLabel(
+            f"Nama Lengkap: {self.user.get('nama_lengkap', '-')}"
+        )
+
+        username = QLabel(
+            f"Username: {self.user.get('username', '-')}"
+        )
+
+        role = QLabel(
+            f"Role: {self.user.get('role', '-')}"
+        )
+
+        info = QLabel(
+            "Anggota hanya dapat melihat dan mengubah profilnya sendiri."
+        )
+
+        layout.addWidget(nama)
+        layout.addWidget(username)
+        layout.addWidget(role)
+        layout.addWidget(info)
+
+        root.addWidget(title)
+        root.addWidget(subtitle)
+        root.addWidget(card)
+        root.addStretch()
+
+    def refresh(self):
+        pass
