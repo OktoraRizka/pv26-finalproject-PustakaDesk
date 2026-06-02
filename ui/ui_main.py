@@ -16,6 +16,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 
+from ui.ui_buku import BukuWidget
+from ui.ui_user import UserWidget
+from ui.ui_dashboard import DashboardWidget
+
 
 class ModulePlaceholder(QWidget):
     """Halaman sementara yang berisi arahan pekerjaan modul."""
@@ -246,42 +250,25 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 return ModulePlaceholder("⚠️", label, f"Halaman peminjam gagal dimuat: {e}", "Person 2/3")
 
+        if self.is_admin and label == "Katalog Buku":
+            if BukuWidget is not None:
+                return BukuWidget(self.db)
+            else:
+                return ModulePlaceholder("⚠️", label, "File ui_buku.py tidak ditemukan atau gagal diimpor.", "Person 2")
+        
+        elif self.is_admin and label == "Manajemen User":
+            if UserWidget is not None:
+                return UserWidget(self.db) 
+            else:
+                return ModulePlaceholder("⚠️", label, "File ui_user.py tidak ditemukan atau gagal diimpor.", "Person 2")
+        
+        elif self.is_admin and label == "Dashboard":
+            if DashboardWidget is not None:
+                return DashboardWidget(self.db) 
+            else:
+                return ModulePlaceholder("⚠️", label, "File ui_dashboard.py tidak ditemukan atau gagal diimpor.", "Person 3")
+            
         admin_modules = {
-            "Dashboard": {
-                "icon": "🏠",
-                "desc": "Template dashboard admin. Statistik dan grafik belum dibuat final.",
-                "owner": "Person 3",
-                "todos": [
-                    "Buat stat card: total buku, anggota, peminjaman aktif, dan terlambat.",
-                    "Ambil data dari db.get_dashboard_stats(), bukan angka dummy.",
-                    "Tambahkan aktivitas terbaru atau grafik sederhana jika diperlukan.",
-                    "Tambahkan tombol refresh dan pastikan data berubah setelah transaksi."
-                ],
-            },
-            "Katalog Buku": {
-                "icon": "📚",
-                "desc": "Template modul pengelolaan data buku untuk admin.",
-                "owner": "Person 2",
-                "todos": [
-                    "Buat tabel buku: Judul, Penulis, Penerbit, Tahun, Kategori, Tersedia, Total.",
-                    "Tambahkan search judul/penulis, filter kategori, dan sort data.",
-                    "Buat tombol Tambah, Edit, Hapus, dan Refresh.",
-                    "Hubungkan form ke database/db_buku.py dan validasi stok tidak boleh negatif.",
-                    "Warnai atau beri penanda untuk buku yang stoknya habis."
-                ],
-            },
-            "Manajemen User": {
-                "icon": "👥",
-                "desc": "Template modul pengelolaan akun admin dan anggota.",
-                "owner": "Person 2",
-                "todos": [
-                    "Buat tabel user: Nama Lengkap, Username, Role, dan status jika diperlukan.",
-                    "Tambahkan search dan filter role admin/anggota.",
-                    "Buat tombol Tambah, Edit, Hapus dengan konfirmasi.",
-                    "Pastikan user yang masih punya pinjaman aktif tidak bisa dihapus sembarangan.",
-                    "Gunakan hashing password jika modul login dikembangkan lebih lanjut."
-                ],
-            },
             "Peminjaman": {
                 "icon": "📋",
                 "desc": "Template modul transaksi peminjaman dan pengembalian.",
