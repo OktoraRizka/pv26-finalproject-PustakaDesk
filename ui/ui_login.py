@@ -126,10 +126,28 @@ class LoginWindow(QMainWindow):
             self.le_password.setFocus()
             return
 
-        from ui.ui_main import MainWindow
-        self._main = MainWindow(self.db, dict(user), self.app, self.load_stylesheet, self._dark)
-        self._main.show()
-        self.close()
+        user = dict(user)
+        role = str(user.get("role", "")).lower().strip()
+
+        if role in ("admin", "anggota", "peminjam", "member"):
+            from ui.ui_main import MainWindow
+
+            self._main = MainWindow(
+                self.db,
+                user,
+                self.app,
+                self.load_stylesheet,
+                self._dark
+            )
+            self._main.show()
+            self.close()
+            return
+
+        QMessageBox.warning(
+            self,
+            "Login Gagal",
+            f"Role pengguna tidak dikenali: {role or '-'}"
+        )
 
     def _toggle_theme(self):
         self._dark = not self._dark
