@@ -1,98 +1,27 @@
 """
 PustakaDesk — ui_member.py
-Template halaman khusus anggota/peminjam.
 
-Versi ini sengaja BELUM dibuat menjadi fitur final.
-Tujuannya: menjaga UI role peminjam tetap berbeda dari admin, tetapi setiap halaman
-masih berupa halaman arahan/tugas untuk dikerjakan anggota berikutnya.
+File ini berisi widget halaman anggota seperti Beranda, Cari Buku,
+Pinjaman Saya, Riwayat, dan Profil. Navigasi utama tetap diatur dari ui_main.py.
 """
+
 from PySide6.QtWidgets import (
-     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,  QLineEdit,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QLineEdit,
     QPushButton, QScrollArea, QGridLayout, QMessageBox, QComboBox
-     )
+)
 from PySide6.QtCore import Qt
+from datetime import date, timedelta
+
+def _row_to_dict(row):
+    try:
+        return dict(row)
+    except Exception:
+        return row if isinstance(row, dict) else {}
 
 
-class MemberTaskPage(QWidget):
-    """Halaman kosong terarah untuk modul peminjam yang belum dikerjakan."""
-
-    def __init__(self, icon: str, title: str, subtitle: str, owner: str, tasks: list[str], note: str = ""):
-        super().__init__()
-        self.setObjectName("page")
-        self.icon = icon
-        self.title = title
-        self.subtitle = subtitle
-        self.owner = owner
-        self.tasks = tasks
-        self.note = note
-        self._build_ui()
-
-    def _build_ui(self):
-        root = QVBoxLayout(self)
-        root.setContentsMargins(26, 24, 26, 24)
-        root.setSpacing(16)
-
-        header = QFrame()
-        header.setObjectName("member_page_header")
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(22, 18, 22, 18)
-        header_layout.setSpacing(14)
-
-        icon_box = QLabel(self.icon)
-        icon_box.setObjectName("member_stat_icon")
-        icon_box.setAlignment(Qt.AlignCenter)
-        icon_box.setFixedSize(48, 48)
-
-        text_box = QVBoxLayout()
-        text_box.setSpacing(5)
-        title = QLabel(self.title)
-        title.setObjectName("member_page_title")
-        subtitle = QLabel(self.subtitle)
-        subtitle.setObjectName("member_page_subtitle")
-        subtitle.setWordWrap(True)
-        text_box.addWidget(title)
-        text_box.addWidget(subtitle)
-
-        header_layout.addWidget(icon_box)
-        header_layout.addLayout(text_box, 1)
-        root.addWidget(header)
-
-        body = QFrame()
-        body.setObjectName("module_card")
-        body_layout = QVBoxLayout(body)
-        body_layout.setContentsMargins(26, 24, 26, 24)
-        body_layout.setSpacing(12)
-
-        module_title = QLabel(f"{self.icon}  Template Modul {self.title}")
-        module_title.setObjectName("module_title")
-
-        module_note = QLabel(
-            f"Halaman ini belum dibuat final. Bagian ini disiapkan untuk {self.owner}, "
-            "supaya pengembang berikutnya langsung tahu isi yang perlu dibangun tanpa mengubah core navigasi."
-        )
-        module_note.setObjectName("module_note")
-        module_note.setWordWrap(True)
-
-        todo_text = "Yang perlu dibuat:\n" + "\n".join(f"• {task}" for task in self.tasks)
-        todo = QLabel(todo_text)
-        todo.setObjectName("module_todo")
-        todo.setWordWrap(True)
-
-        body_layout.addWidget(module_title)
-        body_layout.addWidget(module_note)
-        body_layout.addWidget(todo)
-
-        if self.note:
-            extra = QLabel(self.note)
-            extra.setObjectName("module_note")
-            extra.setWordWrap(True)
-            body_layout.addWidget(extra)
-
-        body_layout.addStretch()
-        root.addWidget(body, 1)
-
-    def refresh(self):
-        pass
+def _member_id(user):
+    user = _row_to_dict(user)
+    return user.get("id_user") or user.get("id")
 
 
 class MemberHomeWidget(QWidget):
@@ -100,7 +29,7 @@ class MemberHomeWidget(QWidget):
         super().__init__()
 
         self.db = db
-        self.user = user
+        self.user = _row_to_dict(user)
         self.go_to = go_to_callback
 
         self.setObjectName("page")
@@ -147,27 +76,13 @@ class MemberHomeWidget(QWidget):
         total_history = 0
         total_books = 0
 
-        if hasattr(self.db, "get_member_active_loans"):
-            active_loans = self.db.get_member_active_loans(
-                self.user.get("id")
-            )
-            total_active = len(active_loans)
+        if hasattr(self.db, "get_member_stats"):
+            stats = self.db.get_member_stats(_member_id(self.user))
 
-            for loan in active_loans:
-                if loan.get("status") == "Terlambat":
-                    total_late += 1
-
-        if hasattr(self.db, "get_member_history"):
-            total_history = len(
-                self.db.get_member_history(
-                    self.user.get("id")
-                )
-            )
-
-        if hasattr(self.db, "get_all_books"):
-            total_books = len(
-                self.db.get_all_books()
-            )
+            total_active = stats.get("dipinjam", 0)
+            total_late = stats.get("terlambat", 0)
+            total_history = stats.get("riwayat", 0)
+            total_books = stats.get("tersedia", 0)
 
         cards = [
             ("📖", "Pinjaman Aktif", total_active),
@@ -212,11 +127,11 @@ class MemberHomeWidget(QWidget):
 
         if self.go_to:
             catalog_btn.clicked.connect(
-                lambda: self.go_to("member_catalog")
+                lambda: self.go_to("Cari Buku")
             )
 
             loans_btn.clicked.connect(
-                lambda: self.go_to("member_loans")
+                lambda: self.go_to("Pinjaman Saya")
             )
 
         action_layout.addWidget(catalog_btn)
@@ -237,7 +152,7 @@ class MemberHomeWidget(QWidget):
         books = []
 
         if hasattr(self.db, "get_all_books"):
-            books = self.db.get_all_books()[:5]
+            books = [ _row_to_dict(book) for book in self.db.get_all_books()][:5]
 
         for book in books:
             card = QFrame()
@@ -284,7 +199,7 @@ class MemberCatalogWidget(QWidget):
         super().__init__()
 
         self.db = db
-        self.user = user
+        self.user = _row_to_dict(user)
 
         self.setObjectName("page")
 
@@ -355,7 +270,7 @@ class MemberCatalogWidget(QWidget):
         books = []
 
         if hasattr(self.db, "get_all_books"):
-            books = self.db.get_all_books()
+            books = [ _row_to_dict(book) for book in self.db.get_all_books()]
 
         keyword = self.search_input.text().lower()
         kategori = self.category_filter.currentText()
@@ -475,27 +390,31 @@ class MemberCatalogWidget(QWidget):
         )
 
     def borrow_book(self, book):
-        if hasattr(self.db, "borrow_book"):
-            success = self.db.borrow_book(
-                self.user.get("id"),
-                book.get("id")
+        try:
+            tanggal_pinjam = date.today().isoformat()
+            tanggal_kembali = (date.today() + timedelta(days=7)).isoformat()
+
+            self.db.add_peminjaman(
+                _member_id(self.user),
+                book.get("id_buku") or book.get("id"),
+                tanggal_pinjam,
+                tanggal_kembali
             )
 
-            if success:
-                QMessageBox.information(
-                    self,
-                    "Berhasil",
-                    "Buku berhasil dipinjam."
-                )
+            QMessageBox.information(
+                self,
+                "Berhasil",
+                "Buku berhasil dipinjam."
+            )
 
-                self.load_books()
+            self.load_books()
 
-            else:
-                QMessageBox.warning(
-                    self,
-                    "Gagal",
-                    "Peminjaman gagal."
-                )
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Gagal",
+                f"Peminjaman gagal.\n\n{e}"
+            )
 
     def refresh(self):
         self.load_books()
@@ -505,7 +424,7 @@ class MemberLoansWidget(QWidget):
         super().__init__()
 
         self.db = db
-        self.user = user
+        self.user = _row_to_dict(user)
         self.history = history
 
         self.setObjectName("page")
@@ -575,27 +494,32 @@ class MemberLoansWidget(QWidget):
             if item.widget():
                 item.widget().deleteLater()
 
-        keyword = self.search_input.text().lower()
+        keyword = self.search_input.text().strip()
         status_filter = self.filter_status.currentText()
 
         if self.history:
-            loans = self.db.get_member_history(
-                self.user["id_user"]
-            )
+            status = status_filter
         else:
-            loans = self.db.get_member_active_loans(
-                self.user["id_user"]
-            )
+            status = "Aktif"
+
+        loans = self.db.get_user_peminjaman(
+            _member_id(self.user),
+            keyword,
+            status
+        )
+
+        loans = [_row_to_dict(loan) for loan in loans]
 
         for loan in loans:
-            judul = loan.get("judul", "").lower()
+            judul = str(loan.get("judul", "")).lower()
             status = loan.get("status", "-")
 
-            cocok_search = keyword in judul
+            cocok_search = keyword.lower() in judul
 
             cocok_status = (
                 status_filter == "Semua"
                 or status == status_filter
+                or not self.history
             )
 
             if cocok_search and cocok_status:
@@ -663,7 +587,7 @@ class MemberProfileWidget(QWidget):
         super().__init__()
 
         self.db = db
-        self.user = user
+        self.user = _row_to_dict(user)
 
         self.setObjectName("page")
 
