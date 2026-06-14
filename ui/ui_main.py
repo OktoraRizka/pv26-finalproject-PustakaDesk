@@ -109,15 +109,15 @@ class MainWindow(QMainWindow):
         lbl_role = QLabel("ADMIN" if self.is_admin else "ANGGOTA")
         lbl_role.setObjectName("sidebar_user_role")
 
-        lbl_name = QLabel(
+        self.lbl_name = QLabel(
             self.user.get("nama_lengkap")
             or self.user.get("username")
             or ("Admin" if self.is_admin else "Anggota")
         )
-        lbl_name.setObjectName("sidebar_user_name")
+        self.lbl_name.setObjectName("sidebar_user_name")
 
         uc.addWidget(lbl_role)
-        uc.addWidget(lbl_name)
+        uc.addWidget(self.lbl_name)
         sb.addWidget(user_card)
 
         section = QLabel("MENU ADMIN" if self.is_admin else "MENU ANGGOTA")
@@ -129,6 +129,7 @@ class MainWindow(QMainWindow):
         self._btn_group.setExclusive(True)
 
         self._nav_index = {}
+        self._nav_label_by_index = {}
 
         for i, (icon, label) in enumerate(self._nav_items()):
             btn = _nav_btn(icon, label)
@@ -136,10 +137,13 @@ class MainWindow(QMainWindow):
             sb.addWidget(btn)
 
             self._nav_index[label] = i
+            self._nav_label_by_index[i] = label
             self._stack.addWidget(self._make_page(label))
 
         self._btn_group.buttons()[0].setChecked(True)
-        self._btn_group.idClicked.connect(self._stack.setCurrentIndex)
+        # Jangan langsung mengubah index stack. Semua perpindahan halaman harus
+        # melalui _go_to() agar data halaman tujuan dimuat ulang dari database.
+        self._btn_group.idClicked.connect(self._on_nav_clicked)
 
         sb.addStretch()
 
@@ -202,7 +206,7 @@ class MainWindow(QMainWindow):
                 return MemberLoansWidget(self.db, self.user, history=True)
 
             if label == "Profil":
-                return MemberProfileWidget(self.db, self.user)
+                return MemberProfileWidget(self.db, self.user, self._update_logged_user)
 
         return QWidget()
 
@@ -243,18 +247,42 @@ class MainWindow(QMainWindow):
         menu_help.addAction(act_about)
 
     def _build_statusbar(self):
-        if self.is_admin:
-            msg = "  Mode Admin • Dashboard, Katalog Buku, Manajemen User, Peminjaman, dan Laporan"
-        else:
-            msg = "  Mode Anggota • Beranda, Cari Buku, Pinjaman Saya, Riwayat, dan Profil"
+        # Status bar sengaja disembunyikan agar tidak ada teks kecil di batas bawah layar.
+        self.statusBar().clearMessage()
+        self.statusBar().hide()
 
-        self.statusBar().showMessage(msg)
+    def _update_logged_user(self, updated_user: dict):
+        """Dipanggil dari halaman profil setelah anggota mengubah data akunnya."""
+        if not updated_user:
+            return
+        self.user.update(dict(updated_user))
+        if hasattr(self, "lbl_name"):
+            self.lbl_name.setText(
+                self.user.get("nama_lengkap")
+                or self.user.get("username")
+                or ("Admin" if self.is_admin else "Anggota")
+            )
+
+        # Bagikan data user terbaru ke halaman anggota lain tanpa mengubah alur fitur.
+        for i in range(self._stack.count()):
+            widget = self._stack.widget(i)
+            if hasattr(widget, "user"):
+                widget.user = dict(self.user)
+
+    def _on_nav_clicked(self, index: int):
+        """Navigasi sidebar sekaligus menyegarkan halaman yang dibuka."""
+        label = self._nav_label_by_index.get(index)
+        if label is not None:
+            self._go_to(label)
 
     def _go_to(self, label):
         idx = self._nav_index[label]
         self._stack.setCurrentIndex(idx)
         self._btn_group.button(idx).setChecked(True)
 
+        # View dibuat sekali dan disimpan di QStackedWidget. Karena itu isi view
+        # harus dimuat ulang setiap kali dibuka agar perubahan dari view lain
+        # (misalnya peminjaman baru) langsung terlihat tanpa login ulang.
         widget = self._stack.widget(idx)
         if hasattr(widget, "refresh"):
             widget.refresh()
@@ -276,12 +304,19 @@ class MainWindow(QMainWindow):
         )
 
         if confirm == QMessageBox.Yes:
+            # Logout eksplisit menghapus sesi remember-me lokal. Menutup aplikasi
+            # biasa tidak menghapusnya, sehingga akun tetap dapat dipulihkan.
+            from utils.session import clear_remembered_user
+            clear_remembered_user()
+
             from ui.ui_login import LoginWindow
 
             self._login = LoginWindow(
                 self.db,
                 self.app,
-                self.load_stylesheet
+                self.load_stylesheet,
+                dark=self._dark,
+                try_remembered_session=False,
             )
             self._login.show()
             self.close()
