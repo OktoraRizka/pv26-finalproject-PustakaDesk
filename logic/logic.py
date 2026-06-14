@@ -7,9 +7,10 @@ UI TIDAK boleh langsung akses database — semua lewat sini.
 import re
 from datetime import date, timedelta
 from typing import Optional
-from PySide6.QtWidgets import QMessageBox, QTableWidgetItem, QDialog
+import os
+from PySide6.QtWidgets import QMessageBox, QTableWidgetItem, QDialog, QLabel
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QPixmap
 
 #  Konstanta
 
@@ -180,15 +181,38 @@ def format_tanggal(iso_str: Optional[str]) -> str:
 # LOGIC BUKU
 class BukuController:
     def __init__(self, ui_widget):
-        self.ui = ui_widget       
-        self.db = ui_widget.db    
+        self.ui = ui_widget
+        self.db = ui_widget.db
+        self.project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+    def _resolve_image_path(self, image_path: str) -> str:
+        if not image_path:
+            return ""
+        if os.path.isabs(str(image_path)):
+            return str(image_path)
+        return os.path.join(self.project_root, str(image_path))
+
+    def _make_cover_widget(self, image_path: str):
+        cover = QLabel("Buku")
+        cover.setObjectName("table_cover")
+        cover.setAlignment(Qt.AlignCenter)
+        cover.setFixedSize(54, 70)
+        cover.setToolTip("Sampul buku")
+
+        path = self._resolve_image_path(image_path)
+        if path and os.path.exists(path):
+            pixmap = QPixmap(path)
+            if not pixmap.isNull():
+                cover.setPixmap(pixmap.scaled(54, 70, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                cover.setText("")
+        return cover
 
     def load_kategori_filter(self):
         """Logika memuat daftar kategori ke QComboBox filter."""
         try:
             while self.ui.filter_kategori.count() > 1:
                 self.ui.filter_kategori.removeItem(1)
-                
+
             kategori_list = self.db.get_kategori_list()
             for kat in kategori_list:
                 if isinstance(kat, tuple):
@@ -199,10 +223,9 @@ class BukuController:
             print(f"Gagal memuat kategori di logic: {e}")
 
     def load_data(self):
-        """Logika memproses filter/sort, query DB, dan merender data ke QTableWidget."""
-        self.ui.table.setRowCount(0)  # Reset tabel di UI
+        """Memproses filter/sort, mengambil data DB, lalu merender tabel buku."""
+        self.ui.table.setRowCount(0)
 
-        # 1. Ambil nilai dari elemen UI
         search_text = self.ui.search_input.text()
         kategori_filter = self.ui.filter_kategori.currentData()
         sort_raw = self.ui.sort_combo.currentData()
@@ -210,7 +233,6 @@ class BukuController:
         if kategori_filter == "All":
             kategori_filter = "Semua"
 
-        # 2. Parsing parameter sorting
         sort_col = "judul"
         sort_order = "ASC"
 
@@ -228,73 +250,79 @@ class BukuController:
             sort_order = "ASC"
 
         try:
-            # 3. Ambil data dari core database
             buku_list = self.db.get_all_books(
-                search=search_text, 
-                kategori=kategori_filter, 
-                sort_col=sort_col, 
+                search=search_text,
+                kategori=kategori_filter,
+                sort_col=sort_col,
                 sort_order=sort_order
             )
 
-            # 4. Tampilkan data ke komponen tabel UI
+            self.ui.table.setRowCount(len(buku_list))
+
             for row_idx, buku in enumerate(buku_list):
-                self.ui.table.insertRow(row_idx)
-                
+                self.ui.table.setRowHeight(row_idx, 82)
+                self.ui.table.setCellWidget(row_idx, 0, self._make_cover_widget(buku["image_path"] if "image_path" in buku.keys() else ""))
+
                 display_mapped_values = [
                     buku["judul"], buku["penulis"], buku["penerbit"],
                     buku["tahun_terbit"], buku["kategori"], buku["stok"], buku["total_stok"]
                 ]
-                
+
                 stok_tersedia = int(buku["stok"])
 
-                for col_idx, value in enumerate(display_mapped_values):
-                    item = QTableWidgetItem(str(value))
-                    
-                    # Logika pewarnaan visual jika stok kosong
+                for offset, value in enumerate(display_mapped_values, start=1):
+                    item = QTableWidgetItem(str(value if value is not None else "-"))
+                    item.setTextAlignment(Qt.AlignVCenter | (Qt.AlignCenter if offset >= 4 else Qt.AlignLeft))
+
                     if stok_tersedia == 0:
-                        item.setBackground(QColor("#FFE4E1"))  # Soft Pink
-                        item.setForeground(QColor("#D8000C"))  # Teks Merah Tua
-                        
-                    self.ui.table.setItem(row_idx, col_idx, item)
-                
-                # Sematkan ID asli database di metadata baris
-                self.ui.table.item(row_idx, 0).setData(Qt.UserRole, buku["id_buku"])
-                
+                        item.setBackground(QColor("#FEF2F2"))
+                        item.setForeground(QColor("#991B1B"))
+
+                    self.ui.table.setItem(row_idx, offset, item)
+
+                # Simpan ID asli pada kolom judul agar tidak tergantung urutan data visual.
+                self.ui.table.item(row_idx, 1).setData(Qt.UserRole, buku["id_buku"])
+
         except Exception as e:
             print(f"Terjadi kesalahan load data di logic: {e}")
 
     def get_selected_book_id(self):
-        """Helper logika untuk mengambil ID Buku yang sedang aktif di-klik."""
+        """Mengambil ID buku dari baris tabel yang dipilih."""
         selected_ranges = self.ui.table.selectedRanges()
         if not selected_ranges:
-            QMessageBox.warning(self.ui, "Peringatan", "Silakan pilih baris buku terlebih dahulu!")
+            QMessageBox.warning(self.ui, "Peringatan", "Silakan pilih baris buku terlebih dahulu.")
             return None
+
         row = selected_ranges[0].topRow()
-        return self.ui.table.item(row, 0).data(Qt.UserRole)
+        for col in range(self.ui.table.columnCount()):
+            item = self.ui.table.item(row, col)
+            if item and item.data(Qt.UserRole) is not None:
+                return item.data(Qt.UserRole)
+
+        QMessageBox.warning(self.ui, "Peringatan", "ID buku tidak ditemukan pada baris yang dipilih.")
+        return None
 
     def tambah_buku_aksi(self, dialog_class):
-        """Logika memunculkan pop-up dengan menerima class dialog dari UI"""
+        """Membuka dialog tambah buku."""
         try:
             kategori_exist = self.db.get_kategori_list()
-        except:
+        except Exception:
             kategori_exist = []
 
-        # Menggunakan class dialog yang dikirim oleh UI
         dialog = dialog_class(self.ui, kategori_list=kategori_exist)
-        
-        if dialog.exec() == 1:
+
+        if dialog.exec() == QDialog.Accepted:
             data = dialog.get_data()
             try:
                 self.db.add_book(
                     judul=data["judul"], penulis=data["penulis"], penerbit=data["penerbit"],
-                    tahun_terbit=data["tahun_terbit"], kategori=data["kategori"], stok=data["stok"]
+                    tahun_terbit=data["tahun_terbit"], kategori=data["kategori"], stok=data["stok"],
+                    image_path=data.get("image_path", ""),
+                    deskripsi=data.get("deskripsi", "")
                 )
-                QMessageBox.information(self.ui, "Sukses", f"Buku '{data['judul']}' berhasil ditambahkan!")
-                
-                # Memanggil fungsi-fungsi lokal yang ada di dalam BukuController
-                self.load_data()             # Refresh data tabel buku
-                self.load_kategori_filter()   # Refresh daftar kategori di combobox filter
-                
+                QMessageBox.information(self.ui, "Sukses", f"Buku '{data['judul']}' berhasil ditambahkan.")
+                self.load_data()
+                self.load_kategori_filter()
             except Exception as e:
                 QMessageBox.critical(self.ui, "Error Database", f"Gagal menyimpan ke database:\n{e}")
 
@@ -305,7 +333,8 @@ class BukuController:
             return
 
         row = self.ui.table.selectedRanges()[0].topRow()
-        judul_buku = self.ui.table.item(row, 0).text()
+        title_item = self.ui.table.item(row, 1) or self.ui.table.item(row, 0)
+        judul_buku = title_item.text() if title_item else "buku ini"
 
         confirm = QMessageBox.question(
             self.ui, "Konfirmasi Hapus",
@@ -315,22 +344,54 @@ class BukuController:
 
         if confirm == QMessageBox.Yes:
             try:
-                if self.db.delete_book(book_id):
-                    QMessageBox.information(self.ui, "Sukses", "Buku berhasil dihapus.")
-                    self.load_data()
-                else:
-                    QMessageBox.critical(self.ui, "Gagal", "Gagal menghapus data dari database.")
+                self.db.delete_book(book_id)
+                QMessageBox.information(self.ui, "Sukses", "Buku berhasil dihapus.")
+                self.load_data()
+                self.load_kategori_filter()
             except Exception as e:
                 QMessageBox.critical(self.ui, "Error", f"Terjadi kesalahan: {e}")
 
-    def handle_edit(self):
-        """Tempat menaruh logika pengeditan buku nanti"""
+    def handle_edit(self, dialog_class=None):
+        """Membuka dialog edit buku berdasarkan baris yang dipilih."""
         book_id = self.get_selected_book_id()
         if book_id is None:
             return
-        # TODO: Implementasi logika edit panggil dialog mode edit disini
-        pass
-    
+
+        if dialog_class is None:
+            QMessageBox.warning(self.ui, "Peringatan", "Dialog edit buku belum tersedia.")
+            return
+
+        try:
+            buku = self.db.get_book_by_id(book_id)
+            if not buku:
+                QMessageBox.warning(self.ui, "Peringatan", "Data buku tidak ditemukan.")
+                return
+
+            try:
+                kategori_exist = self.db.get_kategori_list()
+            except Exception:
+                kategori_exist = []
+
+            dialog = dialog_class(self.ui, kategori_list=kategori_exist, book_data=buku)
+            if dialog.exec() == QDialog.Accepted:
+                data = dialog.get_data()
+                self.db.update_book(
+                    id_buku=book_id,
+                    judul=data["judul"],
+                    penulis=data["penulis"],
+                    penerbit=data["penerbit"],
+                    tahun_terbit=data["tahun_terbit"],
+                    kategori=data["kategori"],
+                    total_stok=data["total_stok"],
+                    image_path=data.get("image_path", ""),
+                    deskripsi=data.get("deskripsi", "")
+                )
+                QMessageBox.information(self.ui, "Sukses", "Data buku berhasil diperbarui.")
+                self.load_data()
+                self.load_kategori_filter()
+        except Exception as e:
+            QMessageBox.critical(self.ui, "Error Database", f"Gagal mengedit buku:\n{e}")
+
 # LoGIC UI USER
 
 class UserController:
@@ -446,15 +507,27 @@ class UserController:
                 return
                 
             konfirmasi = QMessageBox.question(
-                self.ui, "Konfirmasi Hapus", 
-                f"Apakah Anda yakin ingin menghapus user '{user['nama_lengkap']}'?",
-                QMessageBox.Yes | QMessageBox.No
+                self.ui, "Konfirmasi Hapus",
+                (
+                    f"Apakah Anda yakin ingin menghapus akun '{user['nama_lengkap']}'?\n\n"
+                    "Akun akan hilang dari daftar pengguna dan tidak dapat login lagi. "
+                    "Riwayat peminjaman yang sudah selesai tetap disimpan."
+                ),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
             )
             
             if konfirmasi == QMessageBox.Yes:
                 try:
-                    self.db.delete_user(id_user)
-                    QMessageBox.information(self.ui, "Sukses", "User berhasil dihapus dari sistem.")
+                    delete_mode = self.db.delete_user(id_user)
+                    if delete_mode == "soft":
+                        message = (
+                            "Akun berhasil dihapus dari daftar pengguna. "
+                            "Riwayat peminjamannya tetap disimpan untuk laporan."
+                        )
+                    else:
+                        message = "User berhasil dihapus dari sistem."
+                    QMessageBox.information(self.ui, "Sukses", message)
                     self.load_data()
                 except ValueError as val_err:
                     QMessageBox.warning(self.ui, "Gagal Menghapus", str(val_err))
@@ -496,6 +569,9 @@ class DashboardController:
                 status_str = log["status"]
                 if status_str == "Dipinjam":
                     item_status.setForeground(QColor("#FB8C00"))       # Oranye
+                elif status_str == "Konfirmasi":
+                    item_status.setForeground(QColor("#D97706"))       # Kuning/Oranye
+                    item_status.setText("Menunggu Konfirmasi")
                 elif status_str == "Terlambat":
                     item_status.setForeground(QColor("#E53935"))       # Merah
                     item_status.setText("⚠️ Terlambat")

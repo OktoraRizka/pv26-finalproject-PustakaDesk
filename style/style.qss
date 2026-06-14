@@ -1,387 +1,751 @@
-/* PustakaDesk — Tema Terang, proporsi lebih rapih */
+/* PustakaDesk — tema terang profesional.
+   Fokus: layout datar, rapi, tidak memakai efek bubble/gradient berlebihan. */
+
 * {
-    font-family: "Segoe UI", "Inter", "Arial", sans-serif;
+    font-family: "Segoe UI", "Inter", "Arial";
     font-size: 13px;
 }
 
-QMainWindow, QWidget#main_root, QWidget#login_root, QWidget#content_area, QWidget#page {
-    background-color: #F6F8FC;
-    color: #0F172A;
+QMainWindow, QWidget#main_root, QWidget#page, QScrollArea#member_scroll,
+QWidget#member_scroll_content, QWidget#member_scroll_viewport {
+    background: #F5F7FA;
+    color: #1F2937;
 }
-QLabel { background: transparent; color: #0F172A; }
+QWidget#page QLabel {
+    color: #1F2937;
+}
 
 QMenuBar {
     background: #FFFFFF;
-    color: #0F172A;
-    border-bottom: 1px solid #E5EAF2;
-    padding: 3px 14px;
+    color: #1F2937;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 3px 8px;
 }
-QMenuBar::item {
-    padding: 7px 11px;
-    margin: 1px 2px;
-    border-radius: 7px;
-}
-QMenuBar::item:selected { background: #EFF6FF; color: #1D4ED8; }
-QMenu {
-    background: #FFFFFF;
-    color: #0F172A;
-    border: 1px solid #E2E8F0;
-    border-radius: 9px;
-    padding: 6px;
-}
-QMenu::item { padding: 8px 30px 8px 12px; border-radius: 7px; }
-QMenu::item:selected { background: #EFF6FF; color: #1D4ED8; }
-QMenu::separator { height: 1px; background: #E2E8F0; margin: 5px 8px; }
+QMenuBar::item:selected { background: #EEF2FF; border-radius: 3px; }
+QMenu { background: #FFFFFF; border: 1px solid #DDE3EA; padding: 6px; }
+QMenu::item { padding: 7px 22px; border-radius: 3px; }
+QMenu::item:selected { background: #EEF2FF; color: #1D4ED8; }
+QStatusBar { background: transparent; border: none; max-height: 0px; min-height: 0px; }
 
+/* Sidebar */
 #sidebar {
-    background: #0F2033;
-    border-right: 1px solid #20344F;
+    background: #111827;
+    border-right: 1px solid #0B1220;
 }
-#sidebar_brand {
-    background: #162A42;
-    border: 1px solid #264563;
-    border-radius: 13px;
+#sidebar_brand, #sidebar_user_card {
+    background: #1F2937;
+    border: 1px solid #374151;
+    border-radius: 4px;
 }
-#brand_icon, #page_icon {
-    background: #EFF6FF;
-    border: 1px solid #DBEAFE;
-    border-radius: 13px;
-    font-size: 22px;
+#brand_icon {
+    color: #E5E7EB;
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 4px;
+    font-size: 20px;
 }
-#sidebar_app_name { color: #FFFFFF; font-size: 16px; font-weight: 800; }
-#sidebar_app_sub { color: #AAB8CB; font-size: 11px; }
-#sidebar_user_card {
-    background: #0A1726;
-    border: 1px solid #223853;
-    border-radius: 12px;
-}
-#sidebar_user_role {
-    color: #91B8F4;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-#sidebar_user_name { color: #F8FAFC; font-size: 13px; font-weight: 700; }
-#sidebar_section_label {
-    color: #7E90A8;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    padding: 8px 6px 2px 6px;
-}
-#nav_button {
+#sidebar_app_name { color: #F9FAFB; font-size: 16px; font-weight: 800; }
+#sidebar_app_sub { color: #CBD5E1; font-size: 11px; }
+#sidebar_user_role { color: #93C5FD; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+#sidebar_user_name { color: #F9FAFB; font-size: 13px; font-weight: 650; }
+#sidebar_section_label { color: #94A3B8; font-size: 11px; font-weight: 800; margin-top: 6px; }
+
+QPushButton#nav_button {
     background: transparent;
-    color: #C8D3E2;
-    border: 1px solid transparent;
-    border-radius: 11px;
-    padding: 8px 12px;
+    color: #D1D5DB;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 10px;
     text-align: left;
-    font-weight: 600;
+    font-weight: 650;
 }
-#nav_button:hover { background: #1B314A; color: #FFFFFF; border: 1px solid #2D4A68; }
-#nav_button:checked {
-    background: #2563EB;
-    color: #FFFFFF;
-    border: 1px solid #5B8AF3;
-    font-weight: 800;
-}
-#btn_logout_sidebar {
-    background: #FFF1F2;
-    color: #BE123C;
-    border: 1px solid #FFE4E6;
-    border-radius: 11px;
-    padding: 8px 12px;
+QPushButton#nav_button:hover { background: #1F2937; color: #FFFFFF; }
+QPushButton#nav_button:checked { background: #2563EB; color: #FFFFFF; }
+QPushButton#btn_logout_sidebar {
+    background: #7F1D1D;
+    color: #FEE2E2;
+    border: 1px solid #991B1B;
+    border-radius: 4px;
+    padding: 8px 10px;
     text-align: left;
-    font-weight: 800;
+    font-weight: 750;
 }
-#btn_logout_sidebar:hover { background: #FFE4E6; color: #9F1239; }
+QPushButton#btn_logout_sidebar:hover { background: #991B1B; }
 
-QStatusBar {
+/* Panel dan judul halaman */
+#page_header, #toolbar, #module_card, #member_page_header, #member_toolbar,
+#book_card, #loan_card, #profile_card, #member_stat_card {
     background: #FFFFFF;
+    border: 1px solid #DDE3EA;
+    border-radius: 4px;
+}
+#page_title, #member_page_title, #member_section_title {
+    color: #111827;
+    font-size: 20px;
+    font-weight: 850;
+}
+#subtitle_label, #member_page_subtitle, #hint_label {
     color: #64748B;
-    border-top: 1px solid #E5EAF2;
-    padding: 3px 10px;
 }
+#module_title { color: #111827; font-size: 16px; font-weight: 800; }
 
-#page_header, #module_card, #panel_card, #stat_card, #toolbar_frame, #info_card {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 16px;
-}
-#page_title { color: #0F172A; font-size: 23px; font-weight: 850; }
-#subtitle_label, #note_label { color: #64748B; font-size: 13px; }
-#module_title { color: #0F172A; font-size: 18px; font-weight: 800; }
-#module_note, #module_todo, #panel_text { color: #64748B; font-size: 13px; line-height: 1.35; }
-#module_todo {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 12px;
-}
-#panel_title { color: #0F172A; font-size: 15px; font-weight: 800; }
-#stat_title { color: #64748B; font-size: 12px; font-weight: 800; }
-#stat_icon { font-size: 22px; }
-#stat_value { color: #0F172A; font-size: 26px; font-weight: 850; }
-#stat_note { color: #94A3B8; font-size: 11px; }
-#section_title { color: #1E293B; font-size: 14px; font-weight: 800; }
-#info_strip { background: #EFF6FF; border: 1px solid #CFE0FF; border-radius: 11px; color: #1E40AF; }
-
-#login_root { background: #F3F6FB; }
-#login_card {
-    background: #FFFFFF;
-    border: 1px solid #DDE6F2;
-    border-radius: 22px;
-}
-#login_icon { font-size: 38px; color: #2563EB; }
-#login_title { color: #0F172A; font-size: 25px; font-weight: 850; }
-#login_subtitle { color: #52637A; font-size: 14px; }
-#login_hint { color: #64748B; font-size: 12px; padding-top: 2px; }
-#form_label { color: #334155; font-size: 12px; font-weight: 800; }
-#thin_sep { color: #E2E8F0; background: #E2E8F0; border: none; max-height: 1px; }
-
+/* Input */
 QLineEdit, QSpinBox, QDateEdit, QComboBox, QTextEdit {
     background: #FFFFFF;
-    color: #0F172A;
+    color: #111827;
     border: 1px solid #CBD5E1;
-    border-radius: 10px;
-    padding: 7px 10px;
-    selection-background-color: #DBEAFE;
+    border-radius: 4px;
+    padding: 7px 9px;
+    min-height: 28px;
+    selection-background-color: #2563EB;
+    selection-color: white;
 }
 QLineEdit:focus, QSpinBox:focus, QDateEdit:focus, QComboBox:focus, QTextEdit:focus {
     border: 1.5px solid #2563EB;
-    background: #FBFDFF;
 }
-QLineEdit:disabled, QSpinBox:disabled, QDateEdit:disabled, QComboBox:disabled, QTextEdit:disabled {
-    background: #F1F5F9; color: #94A3B8;
+QLineEdit:disabled, QSpinBox:disabled, QDateEdit:disabled, QComboBox:disabled {
+    background: #F1F5F9;
+    color: #94A3B8;
 }
-QComboBox::drop-down { border: none; width: 26px; }
+QComboBox::drop-down { border: none; width: 28px; }
 QComboBox QAbstractItemView {
     background: #FFFFFF;
-    color: #0F172A;
-    border: 1px solid #E2E8F0;
-    selection-background-color: #DBEAFE;
-    selection-color: #1E40AF;
+    color: #111827;
+    border: 1px solid #CBD5E1;
+    selection-background-color: #EEF2FF;
+    selection-color: #1D4ED8;
     outline: none;
 }
 
+/* Tombol */
 QPushButton {
     background: #2563EB;
     color: #FFFFFF;
-    border: none;
-    border-radius: 10px;
-    padding: 7px 14px;
-    font-weight: 800;
+    border: 1px solid #2563EB;
+    border-radius: 4px;
+    padding: 8px 13px;
+    font-weight: 750;
     min-height: 30px;
 }
-QPushButton:hover { background: #1D4ED8; }
+QPushButton:hover { background: #1D4ED8; border-color: #1D4ED8; }
 QPushButton:pressed { background: #1E40AF; }
-QPushButton:disabled { background: #CBD5E1; color: #64748B; }
-QPushButton#btn_primary { background: #2563EB; border-radius: 11px; }
-QPushButton#btn_secondary { background: #475569; }
-QPushButton#btn_secondary:hover { background: #334155; }
-QPushButton#btn_success { background: #16A34A; }
-QPushButton#btn_danger { background: #DC2626; }
-QPushButton#btn_warning { background: #D97706; }
+QPushButton:disabled { background: #E5E7EB; border-color: #E5E7EB; color: #9CA3AF; }
+QPushButton#btn_primary { background: #2563EB; border-color: #2563EB; }
+QPushButton#btn_secondary { background: #475569; border-color: #475569; }
+QPushButton#btn_secondary:hover { background: #334155; border-color: #334155; }
+QPushButton#btn_success { background: #16A34A; border-color: #16A34A; }
+QPushButton#btn_danger { background: #DC2626; border-color: #DC2626; }
+QPushButton#btn_warning { background: #D97706; border-color: #D97706; }
 QPushButton#btn_outline {
     background: #FFFFFF;
-    color: #2563EB;
-    border: 1px solid #BFDBFE;
+    color: #334155;
+    border: 1px solid #CBD5E1;
 }
-QPushButton#btn_outline:hover { background: #EFF6FF; border-color: #93C5FD; }
+QPushButton#btn_outline:hover { background: #F1F5F9; border-color: #94A3B8; }
 
+/* Tabel */
 QTableWidget, QTableView {
     background: #FFFFFF;
     alternate-background-color: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    gridline-color: #E2E8F0;
+    color: #1F2937;
+    border: 1px solid #DDE3EA;
+    border-radius: 4px;
+    gridline-color: #E5E7EB;
     selection-background-color: #DBEAFE;
-    selection-color: #1E40AF;
+    selection-color: #111827;
 }
-QTableWidget::item, QTableView::item { padding: 8px; border: none; }
-QHeaderView::section {
-    background: #F8FAFC;
-    color: #334155;
-    font-weight: 800;
-    font-size: 12px;
+QTableWidget::item, QTableView::item {
     padding: 8px;
     border: none;
-    border-right: 1px solid #E2E8F0;
-    border-bottom: 1px solid #E2E8F0;
+}
+QTableWidget::item:selected, QTableView::item:selected {
+    background: #DBEAFE;
+    color: #111827;
+}
+QTableWidget::item:focus, QTableView::item:focus {
+    border: none;
+    outline: none;
+}
+QHeaderView::section {
+    background: #F1F5F9;
+    color: #475569;
+    font-weight: 850;
+    font-size: 12px;
+    padding: 9px 8px;
+    border: none;
+    border-right: 1px solid #E5E7EB;
+    border-bottom: 1px solid #DDE3EA;
+}
+QLabel#table_cover, QLabel#book_cover, QLabel#cover_preview {
+    background: #F1F5F9;
+    color: #64748B;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    font-weight: 750;
+}
+#cover_panel {
+    background: #F8FAFC;
+    border: 1px solid #DDE3EA;
+    border-radius: 4px;
 }
 
-QDialog, QMessageBox { background: #FFFFFF; color: #0F172A; }
-QMessageBox QLabel { color: #0F172A; }
-#dialog_title { color: #0F172A; font-size: 15px; font-weight: 850; }
-QScrollBar:vertical { background: #F1F5F9; width: 9px; border-radius: 4px; margin: 0; }
-QScrollBar::handle:vertical { background: #CBD5E1; border-radius: 4px; min-height: 30px; }
-QScrollBar::handle:vertical:hover { background: #94A3B8; }
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
-QScrollBar:horizontal { background: #F1F5F9; height: 9px; border-radius: 4px; }
-QScrollBar::handle:horizontal { background: #CBD5E1; border-radius: 4px; min-width: 30px; }
-QScrollBar::handle:horizontal:hover { background: #94A3B8; }
-QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
-#fine_label_ok { color: #16A34A; font-weight: 800; }
-#fine_label_warning { color: #DC2626; font-weight: 800; }
-#bar_bg { background: #DBEAFE; border-radius: 6px; }
+/* Dialog dan message box */
+QDialog, QMessageBox { background: #FFFFFF; color: #1F2937; }
+QMessageBox QLabel { color: #1F2937; }
+#dialog_title { color: #111827; font-size: 17px; font-weight: 850; }
+#dialog_subtitle { color: #64748B; }
 
-/* ──────────────────────────────────────────────────────────────
-   Role anggota/peminjam: lebih katalog, lebih friendly.
-   Admin tetap memakai sidebar dan halaman operasional lama.
-────────────────────────────────────────────────────────────── */
-#member_sidebar {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #173B74, stop:0.55 #0F2A55, stop:1 #0B1B34);
-    border-right: 1px solid #C7D2FE;
-}
-#member_sidebar_brand {
-    background: rgba(255, 255, 255, 0.13);
-    border: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 16px;
-}
-#member_user_card {
-    background: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 14px;
-}
-#member_hero {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2563EB, stop:0.55 #4F46E5, stop:1 #7C3AED);
-    border: 1px solid #C7D2FE;
-    border-radius: 22px;
-}
-#member_hero_title {
-    color: #FFFFFF;
-    font-size: 27px;
-    font-weight: 900;
-}
-#member_hero_subtitle {
-    color: #E0E7FF;
-    font-size: 14px;
-}
-#member_hero_icon {
-    background: rgba(255, 255, 255, 0.18);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 28px;
-    font-size: 48px;
-}
-#member_stat_card, #member_page_header, #member_toolbar, #book_card, #loan_card, #profile_card {
+/* Login */
+#login_root { background: #F5F7FA; }
+#login_card {
     background: #FFFFFF;
-    border: 1px solid #E1E8F5;
-    border-radius: 18px;
+    border: 1px solid #DDE3EA;
+    border-radius: 4px;
 }
-#member_stat_icon {
-    background: #EFF6FF;
-    border: 1px solid #DBEAFE;
-    border-radius: 12px;
-    font-size: 18px;
+#login_icon { font-size: 38px; color: #2563EB; }
+#login_title { color: #111827; font-size: 26px; font-weight: 850; }
+#login_subtitle { color: #64748B; font-size: 14px; }
+#login_hint { color: #64748B; font-size: 12px; }
+#form_label { color: #475569; font-size: 12px; font-weight: 800; }
+#thin_sep { color: #E5E7EB; background: #E5E7EB; border: none; max-height: 1px; }
+
+/* Halaman anggota */
+#member_hero {
+    background: #1E3A8A;
+    border: 1px solid #1E40AF;
+    border-radius: 4px;
 }
+#member_hero_title { color: #FFFFFF; font-size: 24px; font-weight: 900; }
+#member_hero_subtitle { color: #DBEAFE; font-size: 13px; }
 #member_stat_title { color: #64748B; font-size: 12px; font-weight: 850; }
-#member_stat_value { color: #0F172A; font-size: 24px; font-weight: 900; }
-#member_stat_note { color: #94A3B8; font-size: 11px; }
-#member_section_title, #member_page_title { color: #0F172A; font-size: 20px; font-weight: 900; }
-#member_page_subtitle { color: #64748B; font-size: 13px; }
-QScrollArea#member_scroll {
-    background: #F6F8FC;
+#member_stat_value { color: #111827; font-size: 24px; font-weight: 900; }
+#member_stat_note, #book_note, #loan_meta, #profile_meta { color: #64748B; font-size: 12px; }
+#book_available {
+    color: #166534;
+    background: transparent;
     border: none;
+    font-size: 12px;
+    font-weight: 800;
 }
-QWidget#member_scroll_viewport, QWidget#member_scroll_content {
-    background: #F6F8FC;
+#book_unavailable {
+    color: #991B1B;
+    background: transparent;
     border: none;
+    font-size: 12px;
+    font-weight: 800;
 }
-#book_card:hover, #loan_card:hover {
-    border: 1px solid #BFDBFE;
-    background: #FBFDFF;
-}
-#book_cover {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #DBEAFE, stop:1 #EEF2FF);
-    border: 1px solid #C7D2FE;
-    border-radius: 14px;
-    font-size: 24px;
-}
-#book_title { color: #0F172A; font-size: 14px; font-weight: 900; }
+#book_title, #loan_title { color: #111827; font-size: 14px; font-weight: 850; }
 #book_author { color: #475569; font-size: 12px; font-weight: 650; }
 #book_meta {
     color: #1D4ED8;
     background: #EFF6FF;
-    border: 1px solid #DBEAFE;
-    border-radius: 9px;
-    padding: 6px 8px;
+    border: 1px solid #BFDBFE;
+    border-radius: 4px;
+    padding: 5px 7px;
     font-size: 11px;
+    font-weight: 750;
+}
+#book_card:hover, #loan_card:hover { border-color: #94A3B8; }
+
+#loan_info_item { background: transparent; border: none; }
+#loan_info_label {
+    color: #64748B;
+    font-size: 10px;
+    font-weight: 750;
+}
+#loan_info_value {
+    color: #334155;
+    font-size: 12px;
+    font-weight: 750;
+}
+#loan_info_value_late {
+    color: #B91C1C;
+    font-size: 12px;
+    font-weight: 850;
+}
+#loan_note { color: #64748B; font-size: 11px; }
+#loan_note_rejected { color: #B91C1C; font-size: 11px; font-weight: 700; }
+#loan_icon, #profile_avatar {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border: 1px solid #BFDBFE;
+    border-radius: 4px;
     font-weight: 800;
 }
-#book_note, #loan_meta, #profile_meta { color: #64748B; font-size: 12px; }
-#loan_icon {
-    background: #F5F3FF;
-    border: 1px solid #DDD6FE;
-    border-radius: 14px;
-    font-size: 20px;
-}
-#loan_title { color: #0F172A; font-size: 14px; font-weight: 900; }
 #loan_status {
     color: #166534;
     background: #DCFCE7;
-    border: 1px solid #BBF7D0;
-    border-radius: 10px;
+    border: 1px solid #86EFAC;
+    border-radius: 4px;
     padding: 7px 10px;
-    font-weight: 900;
+    font-weight: 850;
 }
 #loan_status_late {
     color: #991B1B;
     background: #FEE2E2;
-    border: 1px solid #FECACA;
-    border-radius: 10px;
+    border: 1px solid #FCA5A5;
+    border-radius: 4px;
     padding: 7px 10px;
-    font-weight: 900;
+    font-weight: 850;
 }
-#profile_avatar {
-    background: #EFF6FF;
-    border: 1px solid #BFDBFE;
-    border-radius: 28px;
-    font-size: 36px;
+#loan_status_confirm {
+    color: #92400E;
+    background: #FEF3C7;
+    border: 1px solid #FCD34D;
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-weight: 850;
 }
-#profile_name { color: #0F172A; font-size: 22px; font-weight: 900; }
+#loan_status_pending {
+    color: #1D4ED8;
+    background: #DBEAFE;
+    border: 1px solid #93C5FD;
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-weight: 850;
+}
+#loan_status_rejected {
+    color: #991B1B;
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-weight: 850;
+}
+
+#profile_name { color: #111827; font-size: 22px; font-weight: 900; }
 #member_empty {
     color: #64748B;
     background: #FFFFFF;
     border: 1px dashed #CBD5E1;
-    border-radius: 16px;
-    padding: 30px;
-    font-size: 14px;
+    border-radius: 4px;
+    padding: 26px;
 }
 QPushButton#btn_member_primary {
-    background: #FFFFFF;
-    color: #1D4ED8;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 11px;
-    padding: 8px 14px;
-    font-weight: 900;
-}
-QPushButton#btn_member_primary:hover { background: #EFF6FF; color: #1E40AF; }
-QPushButton#btn_member_outline {
-    background: rgba(255, 255, 255, 0.14);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.30);
-    border-radius: 11px;
-    padding: 8px 14px;
-    font-weight: 900;
-}
-QPushButton#btn_member_outline:hover { background: rgba(255, 255, 255, 0.22); }
-#book_card QPushButton#btn_member_primary, #member_toolbar QPushButton#btn_member_primary {
     background: #2563EB;
     color: #FFFFFF;
     border: 1px solid #2563EB;
 }
-#book_card QPushButton#btn_member_primary:hover { background: #1D4ED8; }
-#book_card QPushButton#btn_member_outline {
+QPushButton#btn_member_primary:hover { background: #1D4ED8; }
+QPushButton#btn_member_outline {
     background: #FFFFFF;
-    color: #2563EB;
-    border: 1px solid #BFDBFE;
+    color: #334155;
+    border: 1px solid #CBD5E1;
 }
-#book_card QPushButton#btn_member_outline:hover { background: #EFF6FF; }
-QPushButton#btn_member_text {
+QPushButton#btn_member_outline:hover { background: #F1F5F9; }
+#member_hero QPushButton#btn_member_primary { background: #FFFFFF; color: #1E3A8A; border-color: #FFFFFF; }
+#member_hero QPushButton#btn_member_outline { background: transparent; color: #FFFFFF; border-color: #93C5FD; }
+
+/* Tab dan scrollbar */
+QTabWidget::pane { border: 1px solid #DDE3EA; background: #FFFFFF; border-radius: 4px; }
+QTabBar::tab { background: #F1F5F9; color: #475569; padding: 8px 12px; border: 1px solid #DDE3EA; border-bottom: none; }
+QTabBar::tab:selected { background: #FFFFFF; color: #1D4ED8; font-weight: 850; }
+QScrollBar:vertical {
+    background: transparent;
+    width: 7px;
+    margin: 3px 1px;
+}
+QScrollBar::handle:vertical {
+    background: #CBD5E1;
+    border: none;
+    border-radius: 3px;
+    min-height: 34px;
+}
+QScrollBar::handle:vertical:hover { background: #94A3B8; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; background: transparent; }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }
+QScrollBar:horizontal {
+    background: transparent;
+    height: 7px;
+    margin: 1px 3px;
+}
+QScrollBar::handle:horizontal {
+    background: #CBD5E1;
+    border: none;
+    border-radius: 3px;
+    min-width: 34px;
+}
+QScrollBar::handle:horizontal:hover { background: #94A3B8; }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; background: transparent; }
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal { background: transparent; }
+QScrollArea#member_scroll QScrollBar:vertical {
+    width: 5px;
+    margin: 4px 1px;
+    background: transparent;
+}
+QScrollArea#member_scroll QScrollBar::handle:vertical {
+    background: #D6DEE8;
+    border-radius: 2px;
+    min-height: 42px;
+}
+QScrollArea#member_scroll QScrollBar::handle:vertical:hover { background: #94A3B8; }
+
+
+/* Profil anggota - dibuat lebih penuh dan tidak seperti bubble */
+#profile_badge {
+    background: #E2E8F0;
+    color: #1E3A8A;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: 900;
+}
+#profile_form_title {
+    color: #111827;
+    font-size: 17px;
+    font-weight: 850;
+}
+#profile_note {
+    color: #475569;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 4px;
+    padding: 10px;
+}
+#profile_card QFormLayout QLabel {
+    color: #475569;
+    font-weight: 750;
+}
+
+/* Revisi v5: dialog rapi, dashboard anggota, dan foto profil */
+QDialog#clean_dialog {
+    background: #FFFFFF;
+    color: #1F2937;
+}
+#detail_dialog_title {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+}
+#detail_book_title {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+}
+#detail_text {
+    color: #334155;
+    font-size: 12px;
+    line-height: 1.35;
+}
+#profile_picture {
+    background: #E2E8F0;
+    color: #1E3A8A;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    font-size: 22px;
+    font-weight: 900;
+}
+#book_card {
+    min-height: 88px;
+}
+#member_scroll_content {
+    background: #F5F7FA;
+}
+QDialogButtonBox QPushButton {
+    min-width: 84px;
+}
+QMessageBox QPushButton {
+    min-width: 82px;
+}
+QMessageBox {
+    background: #FFFFFF;
+}
+
+/* Revisi v6: kontras hero, dialog detail/form, dan stat admin lebih bersih */
+QFrame#member_hero QLabel#member_hero_title {
+    color: #FFFFFF;
+    background: transparent;
+    font-size: 24px;
+    font-weight: 900;
+}
+QFrame#member_hero QLabel#member_hero_subtitle {
+    color: #E0ECFF;
+    background: transparent;
+    font-size: 13px;
+}
+QFrame#stat_card {
+    background: #FFFFFF;
+    border: 1px solid #DDE3EA;
+    border-radius: 4px;
+}
+QFrame#stat_card QLabel {
+    border: none;
+    background: transparent;
+}
+QFrame#detail_header, QFrame#dialog_form_panel {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 4px;
+}
+#detail_hint {
+    color: #64748B;
+    background: transparent;
+    font-size: 12px;
+}
+QFrame#detail_info_cell {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 4px;
+}
+#detail_info_label {
+    color: #64748B;
+    background: transparent;
+    border: none;
+    font-size: 11px;
+    font-weight: 800;
+}
+#detail_info_value {
+    color: #111827;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+}
+#detail_available {
+    color: #166534;
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 4px;
+    padding: 9px 10px;
+    font-weight: 700;
+}
+#detail_unavailable {
+    color: #991B1B;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 4px;
+    padding: 9px 10px;
+    font-weight: 700;
+}
+QFrame#dialog_info_strip {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 4px;
+}
+#dialog_info_title {
+    color: #1D4ED8;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    font-weight: 850;
+}
+#dialog_info_text {
+    color: #475569;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+}
+QTableWidget#data_table {
+    border: 1px solid #DDE3EA;
+    border-radius: 4px;
+}
+QLabel#page_title {
+    color: #111827;
+}
+QFrame#page_header QLabel#page_title {
+    color: #111827;
+    background: transparent;
+}
+QFrame#toolbar QLabel {
+    color: #334155;
+    background: transparent;
+    border: none;
+    font-weight: 650;
+}
+QDialog#clean_dialog QLabel {
+    background: transparent;
+}
+QDialog#clean_dialog QLabel#book_cover,
+QDialog#clean_dialog QLabel#cover_preview {
+    background: #F1F5F9;
+}
+
+/* Revisi v8: deskripsi buku pada dialog detail */
+QFrame#detail_description_box {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 4px;
+}
+#detail_description_title {
+    color: #111827;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    font-weight: 850;
+}
+#detail_description_text {
+    color: #475569;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Revisi v9: kartu dashboard dapat diklik dan aksi detail lebih jelas */
+#book_row_action {
+    color: #2563EB;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    font-weight: 800;
+}
+QFrame#book_card:focus {
+    border: 1px solid #93C5FD;
+}
+
+/* Revisi v12: autentikasi, registrasi, dan remember me */
+QCheckBox#remember_me {
+    color: #475569;
+    spacing: 8px;
+    font-size: 12px;
+}
+QCheckBox#remember_me::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #94A3B8;
+    border-radius: 3px;
+    background: #FFFFFF;
+}
+QCheckBox#remember_me::indicator:hover {
+    border-color: #2563EB;
+}
+QCheckBox#remember_me::indicator:checked {
+    background: #2563EB;
+    border-color: #2563EB;
+    image: none;
+}
+#auth_switch_text {
+    color: #64748B;
+    font-size: 12px;
+}
+QPushButton#btn_auth_link {
     background: transparent;
     color: #2563EB;
     border: none;
-    font-weight: 900;
+    padding: 2px 3px;
+    min-height: 20px;
+    font-size: 12px;
+    font-weight: 800;
 }
-QPushButton#btn_member_text:hover { background: #EFF6FF; }
+QPushButton#btn_auth_link:hover {
+    background: transparent;
+    color: #1D4ED8;
+    text-decoration: underline;
+}
+QPushButton#btn_auth_link:pressed {
+    background: transparent;
+    color: #1E40AF;
+}
+
+/* Revisi v13: input password dengan kontrol tampil/sembunyikan */
+QWidget#password_input_row { background: transparent; }
+QLineEdit#password_line_edit { min-height: 28px; }
+QToolButton#password_toggle {
+    background: #F8FAFC;
+    color: #334155;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 800;
+}
+QToolButton#password_toggle:hover {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border-color: #93C5FD;
+}
+QToolButton#password_toggle:checked {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border-color: #60A5FA;
+}
+
+/* Revisi v17: kalender QDateEdit tetap terbaca dan tidak mewarisi padding tabel data */
+QCalendarWidget {
+    background: #FFFFFF;
+    color: #111827;
+}
+QCalendarWidget QWidget#qt_calendar_navigationbar {
+    background: #2563EB;
+    border: none;
+}
+QCalendarWidget QToolButton {
+    background: transparent;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 7px;
+    margin: 2px;
+    min-height: 22px;
+    font-weight: 750;
+}
+QCalendarWidget QToolButton:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+QCalendarWidget QMenu {
+    background: #FFFFFF;
+    color: #111827;
+    border: 1px solid #CBD5E1;
+}
+QCalendarWidget QSpinBox {
+    background: #FFFFFF;
+    color: #111827;
+    border: 1px solid #CBD5E1;
+    padding: 2px 5px;
+    min-height: 22px;
+}
+QCalendarWidget QAbstractItemView,
+QCalendarWidget QTableView {
+    background: #FFFFFF;
+    alternate-background-color: #FFFFFF;
+    color: #111827;
+    border: none;
+    border-radius: 0;
+    gridline-color: transparent;
+    selection-background-color: #DBEAFE;
+    selection-color: #111827;
+    outline: none;
+    font-size: 12px;
+}
+QCalendarWidget QTableView::item,
+QCalendarWidget QAbstractItemView::item {
+    padding: 0px;
+    margin: 0px;
+    border: none;
+}
+QCalendarWidget QTableView::item:selected,
+QCalendarWidget QAbstractItemView::item:selected {
+    background: #DBEAFE;
+    color: #111827;
+    border: none;
+}
+
+/* Revisi v19: seluruh area pemilih tanggal dapat diklik */
+QLabel#calendar_date_label {
+    color: #334155;
+    font-size: 12px;
+    font-weight: 750;
+    margin-top: 2px;
+}
+QPushButton#calendar_date_selector {
+    background: #FFFFFF;
+    color: #0F172A;
+    border: 1px solid #94A3B8;
+    border-radius: 5px;
+    min-height: 54px;
+    padding: 0 18px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 750;
+}
+QPushButton#calendar_date_selector:hover {
+    background: #F8FAFC;
+    border-color: #2563EB;
+}
+QPushButton#calendar_date_selector:focus {
+    border: 2px solid #2563EB;
+}
+QDialog#calendar_popup_dialog {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+}

@@ -1,182 +1,189 @@
 """
 PustakaDesk — ui_peminjaman.py
+Halaman manajemen peminjaman: pinjam buku, setujui/tolak pengajuan, konfirmasi pengembalian, dan lihat riwayat.
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QTableWidget,
-    QTableWidgetItem, QLineEdit,
-    QComboBox, QMessageBox, QHeaderView
-)
-
-from PySide6.QtCore import Qt
 from datetime import date
 
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTableWidget,
+    QTableWidgetItem, QLineEdit, QComboBox, QMessageBox, QHeaderView, QFrame
+)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
+
 from ui.ui_dialogs import BorrowDialog, ReturnDialog
+from ui.table_helpers import apply_clean_table_focus
 
 
 class PeminjamanWidget(QWidget):
 
     def __init__(self, db):
         super().__init__()
-
         self.db = db
-
         self.setObjectName("page")
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(20, 20, 20, 20)
+        root.setContentsMargins(24, 24, 24, 24)
         root.setSpacing(16)
 
-        title = QLabel("📋 Manajemen Peminjaman")
-        title.setStyleSheet(
-            "font-size: 20px; font-weight: bold;"
-        )
+        header = QFrame()
+        header.setObjectName("page_header")
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(18, 16, 18, 16)
+        header_layout.setSpacing(4)
 
-        root.addWidget(title)
+        title = QLabel("Manajemen Peminjaman")
+        title.setObjectName("page_title")
+        header_layout.addWidget(title)
+        root.addWidget(header)
 
-        top = QHBoxLayout()
+        toolbar = QFrame()
+        toolbar.setObjectName("toolbar")
+        top = QHBoxLayout(toolbar)
+        top.setContentsMargins(14, 12, 14, 12)
+        top.setSpacing(10)
 
         self.search = QLineEdit()
-        self.search.setPlaceholderText(
-            "Cari judul buku / nama peminjam..."
-        )
-
-        self.search.textChanged.connect(
-            self.load_data
-        )
+        self.search.setPlaceholderText("Cari judul buku / nama peminjam...")
+        self.search.textChanged.connect(self.load_data)
 
         self.filter_status = QComboBox()
-
         self.filter_status.addItems([
-            "Semua",
+            "Aktif",
+            "Menunggu Persetujuan",
+            "Konfirmasi",
             "Dipinjam",
             "Terlambat",
-            "Dikembalikan"
+            "Riwayat",
+            "Ditolak",
+            "Dikembalikan",
+            "Semua",
         ])
-
-        self.filter_status.currentTextChanged.connect(
-            self.load_data
-        )
+        self.filter_status.currentTextChanged.connect(self.load_data)
 
         self.sort_combo = QComboBox()
+        self.sort_combo.addItems(["Terbaru", "Terlama", "Jatuh Tempo"])
+        self.sort_combo.currentTextChanged.connect(self.load_data)
 
-        self.sort_combo.addItems([
-            "Terbaru",
-            "Terlama",
-            "Jatuh Tempo"
-        ])
-
-        self.sort_combo.currentTextChanged.connect(
-            self.load_data
-        )
-
-        top.addWidget(self.search)
+        top.addWidget(QLabel("Cari"))
+        top.addWidget(self.search, 1)
+        top.addWidget(QLabel("Tampilan"))
         top.addWidget(self.filter_status)
+        top.addWidget(QLabel("Urutkan"))
         top.addWidget(self.sort_combo)
-
-        root.addLayout(top)
+        root.addWidget(toolbar)
 
         info = QHBoxLayout()
-
-        self.lbl_total = QLabel("Dipinjam: 0")
+        self.lbl_total = QLabel("Aktif/Proses: 0")
+        self.lbl_total.setStyleSheet("color: #334155; font-weight: 750;")
+        self.lbl_pengajuan = QLabel("Pengajuan: 0")
+        self.lbl_pengajuan.setStyleSheet("color: #2563EB; font-weight: 750;")
+        self.lbl_konfirmasi = QLabel("Pengembalian: 0")
+        self.lbl_konfirmasi.setStyleSheet("color: #D97706; font-weight: 750;")
         self.lbl_terlambat = QLabel("Terlambat: 0")
-
-        self.lbl_terlambat.setStyleSheet(
-            "color: red; font-weight: bold;"
-        )
+        self.lbl_terlambat.setStyleSheet("color: #DC2626; font-weight: 800;")
 
         info.addWidget(self.lbl_total)
-        info.addSpacing(20)
+        info.addSpacing(18)
+        info.addWidget(self.lbl_pengajuan)
+        info.addSpacing(18)
+        info.addWidget(self.lbl_konfirmasi)
+        info.addSpacing(18)
         info.addWidget(self.lbl_terlambat)
         info.addStretch()
-
         root.addLayout(info)
 
         btns = QHBoxLayout()
-
         btn_pinjam = QPushButton("Pinjam Buku")
-        btn_kembali = QPushButton("Kembalikan")
+        btn_pinjam.setObjectName("btn_primary")
+        btn_setujui = QPushButton("Setujui Pengajuan")
+        btn_setujui.setObjectName("btn_success")
+        btn_tolak = QPushButton("Tolak Pengajuan")
+        btn_tolak.setObjectName("btn_danger")
+        btn_kembali = QPushButton("Konfirmasi Pengembalian")
+        btn_kembali.setObjectName("btn_warning")
         btn_refresh = QPushButton("Refresh")
+        btn_refresh.setObjectName("btn_outline")
 
-        btn_pinjam.clicked.connect(
-            self.pinjam_buku
-        )
-
-        btn_kembali.clicked.connect(
-            self.kembalikan_buku
-        )
-
-        btn_refresh.clicked.connect(
-            self.load_data
-        )
+        btn_pinjam.clicked.connect(self.pinjam_buku)
+        btn_setujui.clicked.connect(self.setujui_pengajuan)
+        btn_tolak.clicked.connect(self.tolak_pengajuan)
+        btn_kembali.clicked.connect(self.kembalikan_buku)
+        btn_refresh.clicked.connect(self.load_data)
 
         btns.addWidget(btn_pinjam)
+        btns.addWidget(btn_setujui)
+        btns.addWidget(btn_tolak)
         btns.addWidget(btn_kembali)
         btns.addStretch()
         btns.addWidget(btn_refresh)
-
         root.addLayout(btns)
 
         self.table = QTableWidget()
-
+        self.table.setObjectName("data_table")
         self.table.setColumnCount(8)
-
         self.table.setHorizontalHeaderLabels([
-            "Judul",
-            "Penulis",
-            "Peminjam",
-            "Tgl Pinjam",
-            "Tgl Kembali",
-            "Tgl Dikembalikan",
-            "Status",
-            "Denda"
+            "Judul", "Penulis", "Peminjam", "Tgl Pinjam", "Jatuh Tempo",
+            "Tgl Pengajuan/Kembali", "Status", "Denda"
         ])
-
-        self.table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
-        )
-
-        self.table.setSelectionBehavior(
-            QTableWidget.SelectRows
-        )
-
-        root.addWidget(self.table)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.verticalHeader().setVisible(False)
+        self.table.setAlternatingRowColors(True)
+        self.table.setShowGrid(False)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        apply_clean_table_focus(self.table)
+        root.addWidget(self.table, 1)
 
         self.load_data()
 
-    def load_data(self):
+    def _status_color(self, status):
+        if status == "Terlambat":
+            return QColor("#991B1B"), QColor("#FEE2E2")
+        if status == "Konfirmasi":
+            return QColor("#92400E"), QColor("#FEF3C7")
+        if status == "Menunggu Persetujuan":
+            return QColor("#1D4ED8"), QColor("#DBEAFE")
+        if status == "Ditolak":
+            return QColor("#7F1D1D"), QColor("#FEE2E2")
+        if status == "Dikembalikan":
+            return QColor("#166534"), QColor("#DCFCE7")
+        return QColor("#1F2937"), None
 
-        search = self.search.text()
-
-        status = self.filter_status.currentText()
-
+    def _current_sort(self):
         sort = self.sort_combo.currentText()
-
         sort_col = "tanggal_pinjam"
         sort_order = "DESC"
-
         if sort == "Terlama":
             sort_order = "ASC"
-
         elif sort == "Jatuh Tempo":
             sort_col = "tanggal_kembali"
             sort_order = "ASC"
+        return sort_col, sort_order
 
-        rows = self.db.get_all_peminjaman(
-            search,
-            status,
-            sort_col,
-            sort_order
-        )
+    def _selected_loan_id(self):
+        row = self.table.currentRow()
+        if row < 0:
+            return None
+        item = self.table.item(row, 0)
+        return item.data(Qt.UserRole) if item else None
 
+    def load_data(self):
+        search = self.search.text()
+        status = self.filter_status.currentText()
+        sort_col, sort_order = self._current_sort()
+
+        rows = self.db.get_all_peminjaman(search, status, sort_col, sort_order)
         self.table.setRowCount(len(rows))
 
-        total_dipinjam = 0
+        total_aktif = 0
+        total_pengajuan = 0
+        total_konfirmasi = 0
         total_terlambat = 0
 
         for i, row in enumerate(rows):
-
             values = [
                 row["judul"],
                 row["penulis"],
@@ -185,88 +192,143 @@ class PeminjamanWidget(QWidget):
                 row["tanggal_kembali"],
                 row["tanggal_kembali_aktual"] or "-",
                 row["status"],
-                str(row["denda"])
+                f"Rp {int(row['denda']):,}".replace(",", ".")
             ]
 
+            status_text = row["status"]
+            fg, bg = self._status_color(status_text)
+
             for j, value in enumerate(values):
-
                 item = QTableWidgetItem(str(value))
-
-                item.setFlags(
-                    item.flags() ^ Qt.ItemIsEditable
-                )
-
-                if row["status"] == "Terlambat":
-                    item.setBackground(
-                        Qt.GlobalColor.lightGray
-                    )
-
+                item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                item.setTextAlignment(Qt.AlignVCenter | (Qt.AlignCenter if j >= 3 else Qt.AlignLeft))
+                if j == 0:
+                    item.setData(Qt.UserRole, row["id_peminjaman"])
+                if bg is not None:
+                    item.setBackground(bg)
+                if j == 6:
+                    item.setForeground(fg)
+                    item.setTextAlignment(Qt.AlignCenter)
                 self.table.setItem(i, j, item)
 
-            if row["status"] in [
-                "Dipinjam",
-                "Terlambat"
-            ]:
-                total_dipinjam += 1
-
-            if row["status"] == "Terlambat":
+            if status_text in ("Dipinjam", "Terlambat", "Konfirmasi", "Menunggu Persetujuan"):
+                total_aktif += 1
+            if status_text == "Menunggu Persetujuan":
+                total_pengajuan += 1
+            if status_text == "Konfirmasi":
+                total_konfirmasi += 1
+            if status_text == "Terlambat":
                 total_terlambat += 1
 
-        self.lbl_total.setText(
-            f"Dipinjam: {total_dipinjam}"
-        )
-
-        self.lbl_terlambat.setText(
-            f"Terlambat: {total_terlambat}"
-        )
+        self.lbl_total.setText(f"Aktif/Proses: {total_aktif}")
+        self.lbl_pengajuan.setText(f"Pengajuan: {total_pengajuan}")
+        self.lbl_konfirmasi.setText(f"Pengembalian: {total_konfirmasi}")
+        self.lbl_terlambat.setText(f"Terlambat: {total_terlambat}")
 
     def pinjam_buku(self):
-
-        dialog = BorrowDialog(self.db)
-
+        dialog = BorrowDialog(self.db, self)
         if dialog.exec():
             self.load_data()
 
-    def kembalikan_buku(self):
-
-        row = self.table.currentRow()
-
-        if row < 0:
-            QMessageBox.warning(
-                self,
-                "Pilih Data",
-                "Pilih data peminjaman terlebih dahulu."
-            )
+    def setujui_pengajuan(self):
+        loan_id = self._selected_loan_id()
+        if loan_id is None:
+            QMessageBox.warning(self, "Pilih Data", "Pilih pengajuan peminjaman terlebih dahulu.")
             return
 
-        search = self.search.text()
+        data = self.db.get_peminjaman_by_id(loan_id)
+        if not data or data["status"] != "Menunggu Persetujuan":
+            QMessageBox.information(self, "Bukan Pengajuan", "Data yang dipilih tidak sedang menunggu persetujuan admin.")
+            return
 
-        status = self.filter_status.currentText()
-
-        rows = self.db.get_all_peminjaman(
-            search,
-            status
+        confirm = QMessageBox.question(
+            self,
+            "Setujui Pengajuan",
+            "Setujui peminjaman berdurasi lebih dari 7 hari ini?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
         )
+        if confirm != QMessageBox.Yes:
+            return
 
-        data = rows[row]
+        try:
+            self.db.setujui_pengajuan_peminjaman(loan_id)
+            QMessageBox.information(self, "Berhasil", "Pengajuan peminjaman berhasil disetujui.")
+            self.load_data()
+        except Exception as exc:
+            QMessageBox.warning(self, "Gagal", f"Pengajuan tidak dapat disetujui.\n\n{exc}")
+
+    def tolak_pengajuan(self):
+        loan_id = self._selected_loan_id()
+        if loan_id is None:
+            QMessageBox.warning(self, "Pilih Data", "Pilih pengajuan peminjaman terlebih dahulu.")
+            return
+
+        data = self.db.get_peminjaman_by_id(loan_id)
+        if not data or data["status"] != "Menunggu Persetujuan":
+            QMessageBox.information(self, "Bukan Pengajuan", "Data yang dipilih tidak sedang menunggu persetujuan admin.")
+            return
+
+        confirm = QMessageBox.question(
+            self,
+            "Tolak Pengajuan",
+            "Tolak pengajuan peminjaman ini?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+
+        try:
+            self.db.tolak_pengajuan_peminjaman(loan_id)
+            QMessageBox.information(self, "Pengajuan Ditolak", "Pengajuan ditolak dan stok buku dikembalikan.")
+            self.load_data()
+        except Exception as exc:
+            QMessageBox.warning(self, "Gagal", f"Pengajuan tidak dapat ditolak.\n\n{exc}")
+
+    def kembalikan_buku(self):
+        loan_id = self._selected_loan_id()
+        if loan_id is None:
+            QMessageBox.warning(self, "Pilih Data", "Pilih data peminjaman terlebih dahulu.")
+            return
+
+        data = self.db.get_peminjaman_by_id(loan_id)
+        if not data:
+            QMessageBox.warning(self, "Data Tidak Ditemukan", "Data peminjaman tidak ditemukan.")
+            return
 
         if data["status"] == "Dikembalikan":
-
-            QMessageBox.information(
-                self,
-                "Info",
-                "Buku sudah dikembalikan."
-            )
-
+            QMessageBox.information(self, "Info", "Buku sudah masuk riwayat pengembalian.")
+            return
+        if data["status"] == "Menunggu Persetujuan":
+            QMessageBox.information(self, "Menunggu Persetujuan", "Setujui atau tolak pengajuan terlebih dahulu.")
+            return
+        if data["status"] == "Ditolak":
+            QMessageBox.information(self, "Pengajuan Ditolak", "Pengajuan ini tidak menjadi peminjaman aktif.")
             return
 
-        today = date.today().isoformat()
+        if data["status"] == "Konfirmasi":
+            confirm = QMessageBox.question(
+                self,
+                "Konfirmasi Pengembalian",
+                "Anggota sudah mengajukan pengembalian.\n\n"
+                "Pastikan buku fisik sudah diterima admin, lalu konfirmasi agar stok buku bertambah dan data masuk riwayat.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if confirm == QMessageBox.Yes:
+                try:
+                    denda = self.db.kembalikan_buku(loan_id, date.today().isoformat())
+                    QMessageBox.information(
+                        self,
+                        "Berhasil",
+                        f"Pengembalian berhasil dikonfirmasi.\nDenda: Rp {int(denda):,}".replace(",", ".")
+                    )
+                    self.load_data()
+                except Exception as e:
+                    QMessageBox.warning(self, "Gagal", f"Konfirmasi pengembalian gagal.\n\n{e}")
+            return
 
-        dialog = ReturnDialog(
-            self.db,
-            data["id_peminjaman"],
-            today
-        )
-
+        dialog = ReturnDialog(self.db, loan_id, date.today().isoformat(), self)
         if dialog.exec():
             self.load_data()

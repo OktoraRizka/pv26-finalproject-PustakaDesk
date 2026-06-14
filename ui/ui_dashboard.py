@@ -1,13 +1,14 @@
 """
 PustakaDesk — ui_dashboard.py
-FINAL: Menampilkan statistik riil & aktivitas terbaru dari DatabaseBuku
+FINAL: Menampilkan statistik riil & aktivitas terbaru dari Database
 """
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                               QFrame, QPushButton, QTableWidget, QHeaderView)
+    QFrame, QPushButton, QTableWidget, QHeaderView)
 from PySide6.QtCore import Qt
 
 # Import DashboardController dari package logic
 from logic.logic import DashboardController
+from ui.table_helpers import apply_clean_table_focus
 
 class DashboardWidget(QWidget):
     def __init__(self, db):
@@ -45,11 +46,10 @@ class DashboardWidget(QWidget):
         title.setObjectName("page_title")
         title.setStyleSheet("font-size: 20px; font-weight: bold;")
         
-        self.subtitle = QLabel("Memuat ringkasan data perpustakaan...")
+        self.subtitle = QLabel("")
         self.subtitle.setObjectName("subtitle_label")
-        self.subtitle.setWordWrap(True)
+        self.subtitle.hide()
         text.addWidget(title)
-        text.addWidget(self.subtitle)
 
         # Tombol Refresh manual dihubungkan ke controller lewat lambda
         self.btn_refresh = QPushButton("🔄 Refresh Data")
@@ -104,6 +104,7 @@ class DashboardWidget(QWidget):
         self.table_aktivitas.setHorizontalHeaderLabels(["Judul Buku", "Nama Peminjam", "Tanggal Pinjam", "Status"])
         self.table_aktivitas.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table_aktivitas.setSelectionMode(QTableWidget.NoSelection)
+        apply_clean_table_focus(self.table_aktivitas)
         
         header_table = self.table_aktivitas.horizontalHeader()
         header_table.setSectionResizeMode(0, QHeaderView.Stretch)
@@ -115,31 +116,37 @@ class DashboardWidget(QWidget):
         root.addWidget(body, 1)
 
     def _create_stat_card(self, title, val, bg_color, text_color):
-        """Helper untuk membuat layout QFrame Stat Card."""
+        """Helper untuk membuat stat card yang bersih tanpa border pada teks."""
         card = QFrame()
-        card.setFrameShape(QFrame.StyledPanel)
+        card.setObjectName("stat_card")
         card.setStyleSheet(f"""
-            QFrame {{
-                background-color: {bg_color};
-                border: 1px solid {text_color}40;
-                border-radius: 8px;
+            QFrame#stat_card {{
+                background-color: #FFFFFF;
+                border: 1px solid #DDE3EA;
+                border-left: 4px solid {text_color};
+                border-radius: 4px;
+            }}
+            QLabel {{
+                border: none;
+                background: transparent;
             }}
         """)
-        
+
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(16, 14, 16, 14)
         layout.setSpacing(6)
 
         lbl_title = QLabel(title)
-        lbl_title.setStyleSheet(f"color: {text_color}; font-weight: bold; font-size: 13px; background: transparent;")
-        
+        lbl_title.setStyleSheet(f"color: {text_color}; font-weight: 800; font-size: 13px; border: none; background: transparent;")
+
         lbl_val = QLabel(val)
         lbl_val.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        lbl_val.setStyleSheet(f"color: {text_color}; font-size: 28px; font-weight: bold; background: transparent;")
-        
+        lbl_val.setStyleSheet(f"color: #111827; font-size: 28px; font-weight: 900; border: none; background: transparent;")
+
         layout.addWidget(lbl_title)
+        layout.addStretch(1)
         layout.addWidget(lbl_val)
-        
+
         card.setProperty("value_label", lbl_val)
         return card
 
